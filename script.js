@@ -368,7 +368,6 @@ class SevenWondersCalculator {
 
         const baseCategories = [
             'militaryConflict',
-            'navalCombat',
             'coins',
             'debt',
             'wonders',
@@ -379,7 +378,7 @@ class SevenWondersCalculator {
         ];
 
         // Define expansion categories
-        const armadaCategories = ['islands'];
+        const armadaCategories = ['navalCombat', 'islands'];
         const leadersCategories = ['leaders'];
         const citiesCategories = ['cityCards'];
         const edificeCategories = ['projects'];
