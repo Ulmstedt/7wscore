@@ -185,7 +185,7 @@ class SevenWondersCalculator {
         
         let breakdown = `Sets: ${sets}×7 + Individual: ${individualPoints}`;
         if (free > 0) {
-            breakdown += ` (Wildcards: Gear+${gearWild} Mason+${masonWild} Script+${scriptWild})`;
+            breakdown += ` (Wildcards: <img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} <img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${masonWild} <img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild})`;
         }
         
         return {
