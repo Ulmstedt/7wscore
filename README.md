@@ -1,5 +1,7 @@
 # 7 Wonders Score Calculator
 
+> **🎵 Vibe Coded** - This entire project was vibe coded using Cursor ✨
+
 A modern, responsive web application for calculating end-game scores in the board game 7 Wonders and its expansions.
 
 ## 🎯 Features
