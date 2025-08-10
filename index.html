@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7 Wonders Score Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ 7 Wonders Score Calculator</h1>
+            <p>Calculate your final score for the 7 Wonders board game</p>
+        </header>
+
+        <div class="expansions-section">
+            <h2>Expansions</h2>
+            <div class="expansions-grid">
+                <div class="expansion-toggle">
+                    <input type="checkbox" id="edifice" class="expansion-checkbox">
+                    <label for="edifice" class="expansion-label">
+                        <span class="expansion-icon">🏗️</span>
+                        <span class="expansion-name">Edifice</span>
+                    </label>
+                </div>
+                <div class="expansion-toggle">
+                    <input type="checkbox" id="armada" class="expansion-checkbox">
+                    <label for="armada" class="expansion-label">
+                        <span class="expansion-icon">⚓</span>
+                        <span class="expansion-name">Armada</span>
+                    </label>
+                </div>
+                <div class="expansion-toggle">
+                    <input type="checkbox" id="cities" class="expansion-checkbox">
+                    <label for="cities" class="expansion-label">
+                        <span class="expansion-icon">🏙️</span>
+                        <span class="expansion-name">Cities</span>
+                    </label>
+                </div>
+                <div class="expansion-toggle">
+                    <input type="checkbox" id="leaders" class="expansion-checkbox">
+                    <label for="leaders" class="expansion-label">
+                        <span class="expansion-icon">👑</span>
+                        <span class="expansion-name">Leaders</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="player-section">
+            <h2>Players</h2>
+            <div class="player-controls">
+                <button id="addPlayer" class="btn btn-primary">+ Add Player</button>
+                <button id="clearAll" class="btn btn-secondary">Clear All</button>
+            </div>
+            <div id="playersList" class="players-list">
+                <!-- Players will be added here dynamically -->
+            </div>
+        </div>
+
+        <div class="scoring-section">
+            <h2>Scoring</h2>
+            <div id="allCategoriesScoring" class="all-categories-scoring">
+                <!-- All categories will be rendered here -->
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>Final Results</h2>
+            <div id="results" class="results">
+                <p class="no-results">Add players and scores to see results</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
