@@ -474,38 +474,46 @@ class SevenWondersCalculator {
                         <div class="scoring-row science-row">
                             <span class="player-label">${player.name}</span>
                             <div class="science-inputs">
-                                <div class="science-symbol">
-                                    <label><img src="resources/Science-Gear.webp" alt="Gear" class="science-icon"></label>
-                                    <input type="number" 
-                                           id="science-gear-${player.id}" 
-                                           value="${gearCount}" 
-                                           onchange="calculator.updateScienceSymbol(${player.id}, 'scienceGear', this.value)"
-                                           placeholder="0">
-                                </div>
-                                <div class="science-symbol">
-                                    <label><img src="resources/Science-Mason.webp" alt="Mason" class="science-icon"></label>
-                                    <input type="number" 
-                                           id="science-mason-${player.id}" 
-                                           value="${masonCount}" 
-                                           onchange="calculator.updateScienceSymbol(${player.id}, 'scienceMason', this.value)"
-                                           placeholder="0">
-                                </div>
-                                <div class="science-symbol">
-                                    <label><img src="resources/Science-Script.webp" alt="Script" class="science-icon"></label>
-                                    <input type="number" 
-                                           id="science-script-${player.id}" 
-                                           value="${scriptCount}" 
-                                           onchange="calculator.updateScienceSymbol(${player.id}, 'scienceScript', this.value)"
-                                           placeholder="0">
-                                </div>
-                                <div class="science-symbol">
-                                    <label>🎲</label>
-                                    <input type="number" 
-                                           id="science-free-${player.id}" 
-                                           value="${freeCount}" 
-                                           onchange="calculator.updateScienceSymbol(${player.id}, 'scienceFree', this.value)"
-                                           placeholder="0">
-                                </div>
+                                                                 <div class="science-symbol">
+                                     <label><img src="resources/Science-Gear.webp" alt="Gear" class="science-icon"></label>
+                                     <input type="number" 
+                                            id="science-gear-${player.id}" 
+                                            value="${gearCount}" 
+                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceGear', this.value)"
+                                            placeholder="0"
+                                            step="1"
+                                            min="0">
+                                 </div>
+                                 <div class="science-symbol">
+                                     <label><img src="resources/Science-Mason.webp" alt="Mason" class="science-icon"></label>
+                                     <input type="number" 
+                                            id="science-mason-${player.id}" 
+                                            value="${masonCount}" 
+                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceMason', this.value)"
+                                            placeholder="0"
+                                            step="1"
+                                            min="0">
+                                 </div>
+                                 <div class="science-symbol">
+                                     <label><img src="resources/Science-Script.webp" alt="Script" class="science-icon"></label>
+                                     <input type="number" 
+                                            id="science-script-${player.id}" 
+                                            value="${scriptCount}" 
+                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceScript', this.value)"
+                                            placeholder="0"
+                                            step="1"
+                                            min="0">
+                                 </div>
+                                 <div class="science-symbol">
+                                     <label>🎲</label>
+                                     <input type="number" 
+                                            id="science-free-${player.id}" 
+                                            value="${freeCount}" 
+                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceFree', this.value)"
+                                            placeholder="0"
+                                            step="1"
+                                            min="0">
+                                 </div>
                                 <div class="science-score-display">
                                     <span class="score-display">= ${scienceScore.totalScore} pts</span>
                                     <span class="science-breakdown">${scienceScore.breakdown}</span>
@@ -528,26 +536,28 @@ class SevenWondersCalculator {
                         displayText = 'pts';
                     }
                     
-                    html += `
-                        <div class="scoring-row">
-                            <span class="player-label">${player.name}</span>
-                            <div class="score-input">
-                                <input type="number" 
-                                       id="${category}-${player.id}" 
-                                       value="${currentScore}" 
-                                       onchange="calculator.updatePlayerScore(${player.id}, '${category}', this.value)"
-                                       ${category === 'coins' ? `oninput="calculator.updateCoinDisplay(${player.id}, this.value)"` : ''}
-                                       ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
-                                       placeholder="${categoryInfo.placeholder}">
-                                ${category === 'coins' ? 
-                                    `<span class="score-display" id="coin-display-${player.id}">= ${Math.floor(currentScore / 3)} pts</span>` : 
-                                    category === 'debt' ? 
-                                    `<span class="score-display debt-display" id="debt-display-${player.id}">= -${currentScore} pts</span>` :
-                                    `<span class="score-display">pts</span>`
-                                }
-                            </div>
-                        </div>
-                    `;
+                                         html += `
+                         <div class="scoring-row">
+                             <span class="player-label">${player.name}</span>
+                             <div class="score-input">
+                                 <input type="number" 
+                                        id="${category}-${player.id}" 
+                                        value="${currentScore}" 
+                                        onchange="calculator.updatePlayerScore(${player.id}, '${category}', this.value)"
+                                        ${category === 'coins' ? `oninput="calculator.updateCoinDisplay(${player.id}, this.value)"` : ''}
+                                        ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
+                                        placeholder="${categoryInfo.placeholder}"
+                                        step="1"
+                                                                                 min="${category === 'militaryConflict' ? '-999' : '0'}">
+                                 ${category === 'coins' ? 
+                                     `<span class="score-display" id="coin-display-${player.id}">= ${Math.floor(currentScore / 3)} pts</span>` : 
+                                     category === 'debt' ? 
+                                     `<span class="score-display debt-display" id="debt-display-${player.id}">= -${currentScore} pts</span>` :
+                                     `<span class="score-display">pts</span>`
+                                 }
+                             </div>
+                         </div>
+                     `;
                 }
             });
 
