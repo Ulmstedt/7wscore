@@ -364,6 +364,51 @@ header p {
     gap: 8px;
 }
 
+.number-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.decrease-btn, .increase-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    background: #f7fafc;
+    color: #4a5568;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.decrease-btn:hover, .increase-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.decrease-btn:active, .increase-btn:active {
+    background: #e2e8f0;
+    transform: scale(0.95);
+}
+
+.decrease-btn:disabled, .increase-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.number-controls input[type="number"] {
+    width: 60px;
+    text-align: center;
+}
+
 .score-input input {
     width: 70px;
     padding: 6px 10px;

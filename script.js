@@ -131,13 +131,42 @@ class SevenWondersCalculator {
         }
     }
 
-    updateDebtDisplay(playerId, value) {
-        const debtPoints = -(parseInt(value) || 0);
-        const displayElement = document.getElementById(`debt-display-${playerId}`);
-        if (displayElement) {
-            displayElement.textContent = `= ${debtPoints} pts`;
-        }
-    }
+         updateDebtDisplay(playerId, value) {
+         const debtPoints = -(parseInt(value) || 0);
+         const displayElement = document.getElementById(`debt-display-${playerId}`);
+         if (displayElement) {
+             displayElement.textContent = `= ${debtPoints} pts`;
+         }
+     }
+
+     adjustScore(playerId, category, change) {
+         const player = this.players.find(p => p.id === playerId);
+         if (player) {
+             const currentValue = player.scores[category] || 0;
+             const newValue = currentValue + change;
+             
+             // Check minimum value constraints
+             const minValue = category === 'militaryConflict' ? -999 : 0;
+             if (newValue >= minValue) {
+                 player.scores[category] = newValue;
+                 
+                 // Update the input field
+                 const inputElement = document.getElementById(`${category}-${playerId}`);
+                 if (inputElement) {
+                     inputElement.value = newValue;
+                 }
+                 
+                 // Update real-time displays
+                 if (category === 'coins') {
+                     this.updateCoinDisplay(playerId, newValue);
+                 } else if (category === 'debt') {
+                     this.updateDebtDisplay(playerId, newValue);
+                 }
+                 
+                 this.updateResults();
+             }
+         }
+     }
 
     calculateScienceScore(scienceGear, scienceMason, scienceScript, scienceFree) {
         // Science scoring: 7 points per set of 3 different symbols + n² points per symbol
@@ -536,19 +565,23 @@ class SevenWondersCalculator {
                         displayText = 'pts';
                     }
                     
-                                         html += `
+                                                              html += `
                          <div class="scoring-row">
                              <span class="player-label">${player.name}</span>
                              <div class="score-input">
-                                 <input type="number" 
-                                        id="${category}-${player.id}" 
-                                        value="${currentScore}" 
-                                        onchange="calculator.updatePlayerScore(${player.id}, '${category}', this.value)"
-                                        ${category === 'coins' ? `oninput="calculator.updateCoinDisplay(${player.id}, this.value)"` : ''}
-                                        ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
-                                        placeholder="${categoryInfo.placeholder}"
-                                        step="1"
-                                                                                 min="${category === 'militaryConflict' ? '-999' : '0'}">
+                                 <div class="number-controls">
+                                     <button type="button" class="decrease-btn" onclick="calculator.adjustScore(${player.id}, '${category}', -1)" title="Decrease by 1">−</button>
+                                     <input type="number" 
+                                            id="${category}-${player.id}" 
+                                            value="${currentScore}" 
+                                            onchange="calculator.updatePlayerScore(${player.id}, '${category}', this.value)"
+                                            ${category === 'coins' ? `oninput="calculator.updateCoinDisplay(${player.id}, this.value)"` : ''}
+                                            ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
+                                            placeholder="${categoryInfo.placeholder}"
+                                            step="1"
+                                            min="${category === 'militaryConflict' ? '-999' : '0'}">
+                                     <button type="button" class="increase-btn" onclick="calculator.adjustScore(${player.id}, '${category}', 1)" title="Increase by 1">+</button>
+                                 </div>
                                  ${category === 'coins' ? 
                                      `<span class="score-display" id="coin-display-${player.id}">= ${Math.floor(currentScore / 3)} pts</span>` : 
                                      category === 'debt' ? 
