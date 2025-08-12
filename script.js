@@ -8,6 +8,9 @@ class SevenWondersCalculator {
             cities: false,
             leaders: false
         };
+        this.selectedSuggestionIndex = -1; // Track selected suggestion for arrow key navigation
+        this.currentSuggestions = []; // Store current suggestions for the active input
+        this.activePlayerId = null; // Track which player input is currently active
         this.init();
     }
 
@@ -404,7 +407,12 @@ class SevenWondersCalculator {
                        class="player-name" 
                        value="${player.name}" 
                        onchange="calculator.updatePlayerName(${player.id}, this.value)"
+                       oninput="calculator.handlePlayerNameInput(${player.id}, this.value, this)"
+                       onfocus="calculator.showPlayerNameSuggestions(${player.id}, this)"
+                       onblur="calculator.hidePlayerNameSuggestions(${player.id})"
+                       onkeydown="calculator.handlePlayerNameKeydown(${player.id}, event)"
                        tabindex="${index + 1}">
+                <div class="player-name-suggestions" id="suggestions-${player.id}"></div>
             </div>
         `;
         return card;
@@ -724,11 +732,6 @@ class SevenWondersCalculator {
         // Get existing statistics
         let stats = this.getStatistics();
         stats.games.push(gameData);
-        
-        // Keep only the last 100 games to prevent localStorage from getting too large
-        if (stats.games.length > 100) {
-            stats.games = stats.games.slice(-100);
-        }
 
         // Save to localStorage
         localStorage.setItem('sevenWondersStats', JSON.stringify(stats));
@@ -954,6 +957,152 @@ class SevenWondersCalculator {
             this.closeStatistics();
             alert('All statistics have been cleared.');
         }
+    }
+
+    // Player Name Autocomplete Methods
+    getPlayerNamesFromStats() {
+        const stats = this.getStatistics();
+        const playerNames = new Set();
+        
+        stats.games.forEach(game => {
+            game.players.forEach(player => {
+                if (player.name && player.name.trim()) {
+                    playerNames.add(player.name.trim());
+                }
+            });
+        });
+        
+        return Array.from(playerNames).sort();
+    }
+
+    handlePlayerNameInput(playerId, value, inputElement) {
+        const suggestions = this.getPlayerNamesFromStats();
+        const filteredSuggestions = suggestions.filter(name => 
+            name.toLowerCase().includes(value.toLowerCase()) && 
+            name.toLowerCase() !== value.toLowerCase()
+        );
+        
+        this.currentSuggestions = filteredSuggestions;
+        this.selectedSuggestionIndex = -1;
+        this.activePlayerId = playerId;
+        this.displayPlayerNameSuggestions(playerId, filteredSuggestions, value);
+    }
+
+    showPlayerNameSuggestions(playerId, inputElement) {
+        const suggestions = this.getPlayerNamesFromStats();
+        this.currentSuggestions = suggestions;
+        this.selectedSuggestionIndex = -1;
+        this.activePlayerId = playerId;
+        this.displayPlayerNameSuggestions(playerId, suggestions, inputElement.value);
+    }
+
+    hidePlayerNameSuggestions(playerId) {
+        // Small delay to allow clicking on suggestions
+        setTimeout(() => {
+            const suggestionsDiv = document.getElementById(`suggestions-${playerId}`);
+            if (suggestionsDiv) {
+                suggestionsDiv.innerHTML = '';
+                suggestionsDiv.style.display = 'none';
+            }
+            // Reset selection state when hiding suggestions
+            if (this.activePlayerId === playerId) {
+                this.selectedSuggestionIndex = -1;
+                this.activePlayerId = null;
+                this.currentSuggestions = [];
+            }
+        }, 150);
+    }
+
+    displayPlayerNameSuggestions(playerId, suggestions, currentValue) {
+        const suggestionsDiv = document.getElementById(`suggestions-${playerId}`);
+        if (!suggestionsDiv) return;
+
+        if (suggestions.length === 0 || !currentValue) {
+            suggestionsDiv.innerHTML = '';
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        const suggestionsHTML = suggestions.slice(0, 5).map(name => 
+            `<div class="suggestion-item" onclick="calculator.selectPlayerName(${playerId}, '${name}')">${name}</div>`
+        ).join('');
+
+        suggestionsDiv.innerHTML = suggestionsHTML;
+        suggestionsDiv.style.display = 'block';
+    }
+
+    selectPlayerName(playerId, name) {
+        const inputElement = document.querySelector(`#suggestions-${playerId}`).previousElementSibling;
+        if (inputElement) {
+            inputElement.value = name;
+            this.updatePlayerName(playerId, name);
+        }
+        this.hidePlayerNameSuggestions(playerId);
+    }
+
+    handlePlayerNameKeydown(playerId, event) {
+        const suggestionsDiv = document.getElementById(`suggestions-${playerId}`);
+        if (!suggestionsDiv || suggestionsDiv.style.display === 'none') {
+            return; // No suggestions visible, let normal key handling work
+        }
+
+        switch (event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                this.navigateSuggestions(playerId, 1);
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.navigateSuggestions(playerId, -1);
+                break;
+            case 'Enter':
+                event.preventDefault();
+                this.selectCurrentSuggestion(playerId);
+                break;
+            case 'Escape':
+                event.preventDefault();
+                this.hidePlayerNameSuggestions(playerId);
+                break;
+        }
+    }
+
+    navigateSuggestions(playerId, direction) {
+        if (this.activePlayerId !== playerId) {
+            this.activePlayerId = playerId;
+            this.selectedSuggestionIndex = -1;
+        }
+
+        const maxIndex = this.currentSuggestions.length - 1;
+        this.selectedSuggestionIndex += direction;
+
+        if (this.selectedSuggestionIndex < -1) {
+            this.selectedSuggestionIndex = maxIndex;
+        } else if (this.selectedSuggestionIndex > maxIndex) {
+            this.selectedSuggestionIndex = -1;
+        }
+
+        this.updateSuggestionHighlight(playerId);
+    }
+
+    selectCurrentSuggestion(playerId) {
+        if (this.selectedSuggestionIndex >= 0 && this.selectedSuggestionIndex < this.currentSuggestions.length) {
+            const selectedName = this.currentSuggestions[this.selectedSuggestionIndex];
+            this.selectPlayerName(playerId, selectedName);
+        }
+    }
+
+    updateSuggestionHighlight(playerId) {
+        const suggestionsDiv = document.getElementById(`suggestions-${playerId}`);
+        if (!suggestionsDiv) return;
+
+        const suggestionItems = suggestionsDiv.querySelectorAll('.suggestion-item');
+        suggestionItems.forEach((item, index) => {
+            if (index === this.selectedSuggestionIndex) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
     }
 }
 
