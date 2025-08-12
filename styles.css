@@ -410,7 +410,7 @@ header p {
     opacity: 0.9;
     font-size: 0.85rem;
     margin: 0;
-    margin-left: 44px; /* Align with the text part of the header (icon width + gap) */
+    margin-left: 32px; /* Align with the category name (icon width only) */
 }
 
 .scoring-inputs {
