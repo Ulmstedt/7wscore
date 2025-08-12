@@ -72,6 +72,27 @@
             <div id="results" class="results">
                 <p class="no-results">Add players and scores to see results</p>
             </div>
+            <div class="results-actions">
+                <button class="btn btn-primary" id="saveStatsBtn" onclick="calculator.saveStatistics()">
+                    💾 Save Statistics
+                </button>
+                <button class="btn btn-secondary" id="showStatsBtn" onclick="calculator.showStatistics()">
+                    📊 Show Statistics
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Modal -->
+        <div id="statsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📊 Game Statistics</h2>
+                    <span class="close" onclick="calculator.closeStatistics()">&times;</span>
+                </div>
+                <div class="modal-body" id="statsContent">
+                    <!-- Statistics content will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
 

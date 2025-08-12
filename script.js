@@ -702,10 +702,271 @@ class SevenWondersCalculator {
 
         resultsDiv.innerHTML = resultsHTML;
     }
+
+    // Statistics Methods
+    saveStatistics() {
+        if (this.players.length === 0) {
+            alert('No players to save statistics for!');
+            return;
+        }
+
+        const gameData = {
+            date: new Date().toISOString(),
+            players: this.players.map(player => ({
+                name: player.name,
+                scores: { ...player.scores },
+                totalScore: this.calculateTotalScore(player.scores)
+            })),
+            expansions: { ...this.expansions },
+            winner: this.getCurrentWinner()
+        };
+
+        // Get existing statistics
+        let stats = this.getStatistics();
+        stats.games.push(gameData);
+        
+        // Keep only the last 100 games to prevent localStorage from getting too large
+        if (stats.games.length > 100) {
+            stats.games = stats.games.slice(-100);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('sevenWondersStats', JSON.stringify(stats));
+        
+        // Show success message
+        alert('Game statistics saved successfully!');
+    }
+
+    getStatistics() {
+        const stored = localStorage.getItem('sevenWondersStats');
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        return {
+            games: []
+        };
+    }
+
+    getCurrentWinner() {
+        if (this.players.length === 0) return null;
+        
+        const playerResults = this.players.map(player => ({
+            name: player.name,
+            score: this.calculateTotalScore(player.scores),
+            coins: player.scores.coins || 0
+        }));
+
+        // Sort by score (descending), then by coins (descending) for tiebreaker
+        playerResults.sort((a, b) => {
+            if (a.score !== b.score) {
+                return b.score - a.score;
+            }
+            return b.coins - a.coins;
+        });
+
+        return playerResults[0];
+    }
+
+    showStatistics() {
+        const stats = this.getStatistics();
+        const modal = document.getElementById('statsModal');
+        const content = document.getElementById('statsContent');
+
+        if (stats.games.length === 0) {
+            content.innerHTML = `
+                <div class="stats-section">
+                    <h3>No Statistics Available</h3>
+                    <p>No games have been saved yet. Play a game and click "Save Statistics" to start tracking your progress!</p>
+                </div>
+            `;
+        } else {
+            content.innerHTML = this.generateStatisticsHTML(stats);
+        }
+
+        modal.style.display = 'block';
+    }
+
+    closeStatistics() {
+        const modal = document.getElementById('statsModal');
+        modal.style.display = 'none';
+    }
+
+    generateStatisticsHTML(stats) {
+        const totalGames = stats.games.length;
+        const playerStats = this.calculatePlayerStatistics(stats.games);
+        const overallStats = this.calculateOverallStatistics(stats.games);
+        const recentGames = stats.games.slice(-10).reverse(); // Last 10 games
+
+        return `
+            <div class="stats-section">
+                <h3>📈 Overall Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${totalGames}</div>
+                        <div class="stat-label">Total Games</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overallStats.averageScore.toFixed(1)}</div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overallStats.highestScore}</div>
+                        <div class="stat-label">Highest Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overallStats.lowestScore}</div>
+                        <div class="stat-label">Lowest Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3>👥 Player Statistics</h3>
+                ${Object.keys(playerStats).map(playerName => {
+                    const player = playerStats[playerName];
+                    return `
+                        <div class="player-stats">
+                            <div class="player-stats-header">
+                                <div class="player-stats-name">${playerName}</div>
+                                <div class="player-stats-summary">
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value">${player.gamesPlayed}</div>
+                                        <div class="player-stat-label">Games</div>
+                                    </div>
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value">${player.wins}</div>
+                                        <div class="player-stat-label">Wins</div>
+                                    </div>
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value">${player.winRate.toFixed(1)}%</div>
+                                        <div class="player-stat-label">Win Rate</div>
+                                    </div>
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value">${player.averageScore.toFixed(1)}</div>
+                                        <div class="player-stat-label">Avg Score</div>
+                                    </div>
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value">${player.highestScore}</div>
+                                        <div class="player-stat-label">Best Score</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+
+            <div class="stats-section">
+                <h3>🎮 Recent Games</h3>
+                <div class="recent-games">
+                    ${recentGames.map(game => {
+                        const date = new Date(game.date).toLocaleDateString();
+                        const time = new Date(game.date).toLocaleTimeString();
+                        const players = game.players.map(p => p.name).join(', ');
+                        return `
+                            <div class="game-entry">
+                                <div class="game-info">
+                                    <div class="game-date">${date} at ${time}</div>
+                                    <div class="game-players">${players}</div>
+                                </div>
+                                <div class="game-winner">
+                                    Winner: ${game.winner.name} (${game.winner.score} pts)
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+
+            <div class="stats-section" style="text-align: center;">
+                <button class="clear-stats-btn" onclick="calculator.clearStatistics()">
+                    🗑️ Clear All Statistics
+                </button>
+            </div>
+        `;
+    }
+
+    calculatePlayerStatistics(games) {
+        const playerStats = {};
+
+        games.forEach(game => {
+            game.players.forEach(player => {
+                if (!playerStats[player.name]) {
+                    playerStats[player.name] = {
+                        gamesPlayed: 0,
+                        wins: 0,
+                        totalScore: 0,
+                        highestScore: 0,
+                        lowestScore: Infinity
+                    };
+                }
+
+                const stats = playerStats[player.name];
+                stats.gamesPlayed++;
+                stats.totalScore += player.totalScore;
+                stats.highestScore = Math.max(stats.highestScore, player.totalScore);
+                stats.lowestScore = Math.min(stats.lowestScore, player.totalScore);
+
+                if (game.winner && game.winner.name === player.name) {
+                    stats.wins++;
+                }
+            });
+        });
+
+        // Calculate averages and percentages
+        Object.keys(playerStats).forEach(playerName => {
+            const stats = playerStats[playerName];
+            stats.averageScore = stats.totalScore / stats.gamesPlayed;
+            stats.winRate = (stats.wins / stats.gamesPlayed) * 100;
+            if (stats.lowestScore === Infinity) {
+                stats.lowestScore = 0;
+            }
+        });
+
+        return playerStats;
+    }
+
+    calculateOverallStatistics(games) {
+        let totalScore = 0;
+        let highestScore = 0;
+        let lowestScore = Infinity;
+        let totalPlayers = 0;
+
+        games.forEach(game => {
+            game.players.forEach(player => {
+                totalScore += player.totalScore;
+                highestScore = Math.max(highestScore, player.totalScore);
+                lowestScore = Math.min(lowestScore, player.totalScore);
+                totalPlayers++;
+            });
+        });
+
+        return {
+            averageScore: totalScore / totalPlayers,
+            highestScore: highestScore,
+            lowestScore: lowestScore === Infinity ? 0 : lowestScore
+        };
+    }
+
+    clearStatistics() {
+        if (confirm('Are you sure you want to clear all statistics? This action cannot be undone.')) {
+            localStorage.removeItem('sevenWondersStats');
+            this.closeStatistics();
+            alert('All statistics have been cleared.');
+        }
+    }
 }
 
 // Initialize the calculator when the page loads
 let calculator;
 document.addEventListener('DOMContentLoaded', () => {
     calculator = new SevenWondersCalculator();
+    
+    // Add modal close functionality
+    const modal = document.getElementById('statsModal');
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            calculator.closeStatistics();
+        }
+    });
 });
