@@ -11,6 +11,8 @@ class SevenWondersCalculator {
         this.selectedSuggestionIndex = -1; // Track selected suggestion for arrow key navigation
         this.currentSuggestions = []; // Store current suggestions for the active input
         this.activePlayerId = null; // Track which player input is currently active
+        this.sortBy = 'time'; // 'time' or 'score'
+        this.sortOrder = 'desc'; // 'asc' or 'desc'
         this.init();
     }
 
@@ -736,8 +738,19 @@ class SevenWondersCalculator {
         // Save to localStorage
         localStorage.setItem('sevenWondersStats', JSON.stringify(stats));
         
-        // Show success message
-        alert('Game statistics saved successfully!');
+        // Change button appearance to show success
+        const saveButton = document.getElementById('saveStatsBtn');
+        const originalText = saveButton.innerHTML;
+        const originalClass = saveButton.className;
+        
+        saveButton.innerHTML = '✅ Statistics saved';
+        saveButton.className = 'btn btn-success';
+        
+        // Revert button after 3 seconds
+        setTimeout(() => {
+            saveButton.innerHTML = originalText;
+            saveButton.className = originalClass;
+        }, 3000);
     }
 
     getStatistics() {
@@ -792,6 +805,80 @@ class SevenWondersCalculator {
     closeStatistics() {
         const modal = document.getElementById('statsModal');
         modal.style.display = 'none';
+    }
+
+    generateRecentGamesList(games, totalGames) {
+        return games.map((game) => {
+            const date = new Date(game.date).toLocaleDateString();
+            const time = new Date(game.date).toLocaleTimeString();
+            const players = game.players.map(p => p.name).join(', ');
+            // Find the actual index of this game in the original stats.games array
+            const stats = this.getStatistics();
+            const gameIndex = stats.games.findIndex(g => g.date === game.date && g.winner.name === game.winner.name);
+            return `
+                <div class="game-entry" onclick="calculator.showGameDetails(${gameIndex})">
+                    <button class="remove-game-btn" onclick="calculator.removeGame(${gameIndex}); event.stopPropagation();" title="Remove game">×</button>
+                    <div class="game-info">
+                        <div class="game-date">${date} at ${time}</div>
+                        <div class="game-players">${players}</div>
+                    </div>
+                    <div class="game-winner">
+                        ${game.winner.name} (${game.winner.score})
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    setSortBy(sortType) {
+        this.sortBy = sortType;
+        
+        // Update button states
+        document.getElementById('sortByTime').classList.toggle('active', sortType === 'time');
+        document.getElementById('sortByScore').classList.toggle('active', sortType === 'score');
+        
+        this.sortRecentGames();
+    }
+
+    toggleSortOrder() {
+        this.sortOrder = this.sortOrder === 'desc' ? 'asc' : 'desc';
+        
+        // Update arrow icon
+        const icon = document.getElementById('sortOrderIcon');
+        icon.textContent = this.sortOrder === 'desc' ? '↓' : '↑';
+        
+        this.sortRecentGames();
+    }
+
+    sortRecentGames() {
+        const stats = this.getStatistics();
+        if (!stats || !stats.games) return;
+
+        const recentGamesContainer = document.getElementById('recentGamesList');
+
+        // Get the last 10 games
+        let recentGames = stats.games.slice(-10);
+
+        if (this.sortBy === 'score') {
+            if (this.sortOrder === 'desc') {
+                // Sort by winner's score (highest first)
+                recentGames.sort((a, b) => b.winner.score - a.winner.score);
+            } else {
+                // Sort by winner's score (lowest first)
+                recentGames.sort((a, b) => a.winner.score - b.winner.score);
+            }
+        } else {
+            if (this.sortOrder === 'desc') {
+                // Sort by time (newest first)
+                recentGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                // Sort by time (oldest first)
+                recentGames.sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+        }
+
+        // Update the display
+        recentGamesContainer.innerHTML = this.generateRecentGamesList(recentGames, stats.games.length);
     }
 
     generateStatisticsHTML(stats) {
@@ -860,24 +947,20 @@ class SevenWondersCalculator {
             </div>
 
             <div class="stats-section">
-                <h3>🎮 Recent Games</h3>
-                <div class="recent-games">
-                    ${recentGames.map(game => {
-                        const date = new Date(game.date).toLocaleDateString();
-                        const time = new Date(game.date).toLocaleTimeString();
-                        const players = game.players.map(p => p.name).join(', ');
-                        return `
-                            <div class="game-entry">
-                                <div class="game-info">
-                                    <div class="game-date">${date} at ${time}</div>
-                                    <div class="game-players">${players}</div>
-                                </div>
-                                <div class="game-winner">
-                                    Winner: ${game.winner.name} (${game.winner.score} pts)
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
+                <div class="recent-games-header">
+                    <h3>🎮 Recent Games</h3>
+                    <div class="sort-controls">
+                        <div class="sort-buttons">
+                            <button id="sortByTime" class="sort-btn active" onclick="calculator.setSortBy('time')">Date</button>
+                            <button id="sortByScore" class="sort-btn" onclick="calculator.setSortBy('score')">Score</button>
+                        </div>
+                        <button id="sortOrderBtn" class="sort-order-btn" onclick="calculator.toggleSortOrder()" title="Toggle sort order">
+                            <span id="sortOrderIcon">↓</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="recent-games" id="recentGamesList">
+                    ${this.generateRecentGamesList(recentGames, stats.games.length)}
                 </div>
             </div>
 
@@ -1104,6 +1187,192 @@ class SevenWondersCalculator {
             }
         });
     }
+
+    removeGame(gameIndex) {
+        const stats = this.getStatistics();
+        if (gameIndex >= 0 && gameIndex < stats.games.length) {
+            stats.games.splice(gameIndex, 1);
+            localStorage.setItem('sevenWondersStats', JSON.stringify(stats));
+            this.showStatistics(); // Refresh the statistics display
+        }
+    }
+
+    showGameDetails(gameIndex) {
+        const stats = this.getStatistics();
+        if (stats && stats.games && stats.games[gameIndex]) {
+            const game = stats.games[gameIndex];
+            const date = new Date(game.date).toLocaleDateString();
+            const time = new Date(game.date).toLocaleTimeString();
+            
+            // Sort players by score (winner first)
+            const sortedPlayers = [...game.players].sort((a, b) => b.totalScore - a.totalScore);
+            
+            // Generate enabled expansions display
+            const enabledExpansions = [];
+            if (game.expansions) {
+                if (game.expansions.leaders) enabledExpansions.push('Leaders');
+                if (game.expansions.cities) enabledExpansions.push('Cities');
+                if (game.expansions.armada) enabledExpansions.push('Armada');
+                if (game.expansions.edifice) enabledExpansions.push('Edifice');
+            }
+            
+            const expansionsDisplay = enabledExpansions.length > 0 ? 
+                `<div class="game-details-expansions">Enabled expansions: ${enabledExpansions.join(', ')}</div>` : 
+                '<div class="game-details-expansions">Base game only</div>';
+            
+            const gameDetailsHTML = `
+                <div class="modal" id="gameDetailsModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Game Details</h2>
+                            <span class="close" onclick="calculator.closeGameDetails()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="game-details-header">
+                                <div class="game-details-date">${date} at ${time}</div>
+                                <div class="game-details-players">${game.players.length} players</div>
+                                ${expansionsDisplay}
+                            </div>
+                            
+                            <div class="game-details-scores">
+                                ${sortedPlayers.map((player, index) => {
+                                    const isWinner = index === 0;
+                                    return `
+                                        <div class="player-score-detail ${isWinner ? 'winner-detail' : ''}">
+                                            <div class="player-score-header">
+                                                <span class="player-rank">${index + 1}</span>
+                                                <span class="player-name-detail">${player.name}</span>
+                                                <span class="player-total-score">${player.totalScore} pts</span>
+                                            </div>
+                                            <div class="player-score-breakdown">
+                                                ${this.generateScoreBreakdown(player, game.expansions)}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to page
+            document.body.insertAdjacentHTML('beforeend', gameDetailsHTML);
+            
+            // Show modal
+            const modal = document.getElementById('gameDetailsModal');
+            modal.style.display = 'block';
+        }
+    }
+
+         generateScoreBreakdown(player, expansions = {}) {
+         // Base categories (always shown)
+         const baseCategories = [
+             { key: 'militaryConflict', name: 'Military Conflict', icon: '<img src="resources/Strength-Military.webp" alt="Military Conflict" class="category-icon">' },
+             { key: 'coins', name: 'Coins', icon: '<img src="resources/Coin-3.webp" alt="Coins" class="category-icon">' },
+             { key: 'debt', name: 'Debt', icon: '💸' },
+             { key: 'wonders', name: 'Wonders', icon: '<img src="resources/wonder.webp" alt="Wonders" class="category-icon">' },
+             { key: 'blueCards', name: 'Blue Cards', icon: '<img src="resources/Victory-1.webp" alt="Blue Cards" class="category-icon">' },
+             { key: 'yellowCards', name: 'Yellow Cards', icon: '🏪' },
+             { key: 'purpleCards', name: 'Purple Cards', icon: '🏰' },
+             { key: 'scienceCards', name: 'Science Cards', icon: '🔬' }
+         ];
+
+         // Expansion categories
+         const armadaCategories = [
+             { key: 'navalCombat', name: 'Naval Combat', icon: '<img src="resources/Strength-Naval1.webp" alt="Naval Combat" class="category-icon">' },
+             { key: 'islands', name: 'Islands', icon: '🏝️' }
+         ];
+         const leadersCategories = [
+             { key: 'leaders', name: 'Leaders', icon: '👑' }
+         ];
+         const citiesCategories = [
+             { key: 'cityCards', name: 'Black Cards', icon: '🏙️' }
+         ];
+         const edificeCategories = [
+             { key: 'projects', name: 'Projects', icon: '🏗️' }
+         ];
+
+         // Combine base categories with enabled expansion categories
+         let categories = [...baseCategories];
+         
+         if (expansions.armada) {
+             categories.push(...armadaCategories);
+         }
+         if (expansions.leaders) {
+             categories.push(...leadersCategories);
+         }
+         if (expansions.cities) {
+             categories.push(...citiesCategories);
+         }
+         if (expansions.edifice) {
+             categories.push(...edificeCategories);
+         }
+
+                   return categories.map(category => {
+              const score = player.scores[category.key] || 0;
+              const scoreClass = score < 0 ? 'negative-score' : 'positive-score';
+              
+              // Determine CSS class for category styling to match main interface
+              let categoryClass = '';
+              switch(category.key) {
+                  case 'militaryConflict':
+                      categoryClass = 'military-conflict';
+                      break;
+                  case 'coins':
+                      categoryClass = 'coins';
+                      break;
+                  case 'debt':
+                      categoryClass = 'debt';
+                      break;
+                  case 'wonders':
+                      categoryClass = 'wonders';
+                      break;
+                  case 'blueCards':
+                      categoryClass = 'blue-cards';
+                      break;
+                  case 'yellowCards':
+                      categoryClass = 'yellow-cards';
+                      break;
+                  case 'purpleCards':
+                      categoryClass = 'purple-cards';
+                      break;
+                  case 'scienceCards':
+                      categoryClass = 'science-cards';
+                      break;
+                  case 'navalCombat':
+                      categoryClass = 'naval-combat';
+                      break;
+                  case 'islands':
+                      categoryClass = 'islands';
+                      break;
+                  case 'leaders':
+                      categoryClass = 'leaders';
+                      break;
+                  case 'cityCards':
+                      categoryClass = 'black-cards';
+                      break;
+                  case 'projects':
+                      categoryClass = 'projects';
+                      break;
+              }
+              
+                             return `
+                   <div class="score-category ${categoryClass}">
+                       <span class="category-icon">${category.icon}</span>
+                       <span class="category-name">${category.name}</span>
+                       <span class="category-score ${scoreClass}">${score}</span>
+                   </div>
+               `;
+          }).join('');
+     }
+
+    closeGameDetails() {
+        const modal = document.getElementById('gameDetailsModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
 }
 
 // Initialize the calculator when the page loads
@@ -1116,6 +1385,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             calculator.closeStatistics();
+        }
+        // Close game details modal when clicking outside
+        const gameDetailsModal = document.getElementById('gameDetailsModal');
+        if (event.target === gameDetailsModal) {
+            calculator.closeGameDetails();
         }
     });
 });
