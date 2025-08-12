@@ -817,7 +817,6 @@ class SevenWondersCalculator {
             const gameIndex = stats.games.findIndex(g => g.date === game.date && g.winner.name === game.winner.name);
             return `
                 <div class="game-entry" onclick="calculator.showGameDetails(${gameIndex})">
-                    <button class="remove-game-btn" onclick="calculator.removeGame(${gameIndex}); event.stopPropagation();" title="Remove game">×</button>
                     <div class="game-info">
                         <div class="game-date">${date} at ${time}</div>
                         <div class="game-players">${players}</div>
@@ -900,11 +899,11 @@ class SevenWondersCalculator {
                         <div class="stat-label">Average Score</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${overallStats.highestScore}</div>
+                        <div class="stat-value" ${overallStats.highestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.highestScoreGameIndex})" style="cursor: pointer;"` : ''}>${overallStats.highestScore}</div>
                         <div class="stat-label">Highest Score</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">${overallStats.lowestScore}</div>
+                        <div class="stat-value" ${overallStats.lowestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.lowestScoreGameIndex})" style="cursor: pointer;"` : ''}>${overallStats.lowestScore}</div>
                         <div class="stat-label">Lowest Score</div>
                     </div>
                 </div>
@@ -915,9 +914,14 @@ class SevenWondersCalculator {
                 ${Object.keys(playerStats).map(playerName => {
                     const player = playerStats[playerName];
                     return `
-                        <div class="player-stats">
+                        <div class="player-stats" onclick="calculator.togglePlayerStats(this, '${playerName}')">
                             <div class="player-stats-header">
                                 <div class="player-stats-name">${playerName}</div>
+                                <div class="player-stats-compact">
+                                    <span class="compact-stat">${player.gamesPlayed} games</span>
+                                    <span class="compact-stat">${player.winRate.toFixed(1)}% win rate</span>
+                                    <span class="compact-stat">${player.averageScore.toFixed(1)} avg</span>
+                                </div>
                                 <div class="player-stats-summary">
                                     <div class="player-stat-item">
                                         <div class="player-stat-value">${player.gamesPlayed}</div>
@@ -936,8 +940,12 @@ class SevenWondersCalculator {
                                         <div class="player-stat-label">Avg Score</div>
                                     </div>
                                     <div class="player-stat-item">
-                                        <div class="player-stat-value">${player.highestScore}</div>
+                                        <div class="player-stat-value" ${player.highestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${player.highestScoreGameIndex}); event.stopPropagation();" style="cursor: pointer;"` : ''}>${player.highestScore}</div>
                                         <div class="player-stat-label">Best Score</div>
+                                    </div>
+                                    <div class="player-stat-item">
+                                        <div class="player-stat-value" ${player.lowestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${player.lowestScoreGameIndex}); event.stopPropagation();" style="cursor: pointer;"` : ''}>${player.lowestScore}</div>
+                                        <div class="player-stat-label">Lowest Score</div>
                                     </div>
                                 </div>
                             </div>
@@ -975,7 +983,7 @@ class SevenWondersCalculator {
     calculatePlayerStatistics(games) {
         const playerStats = {};
 
-        games.forEach(game => {
+        games.forEach((game, gameIndex) => {
             game.players.forEach(player => {
                 if (!playerStats[player.name]) {
                     playerStats[player.name] = {
@@ -983,15 +991,24 @@ class SevenWondersCalculator {
                         wins: 0,
                         totalScore: 0,
                         highestScore: 0,
-                        lowestScore: Infinity
+                        lowestScore: Infinity,
+                        highestScoreGameIndex: -1,
+                        lowestScoreGameIndex: -1
                     };
                 }
 
                 const stats = playerStats[player.name];
                 stats.gamesPlayed++;
                 stats.totalScore += player.totalScore;
-                stats.highestScore = Math.max(stats.highestScore, player.totalScore);
-                stats.lowestScore = Math.min(stats.lowestScore, player.totalScore);
+                
+                if (player.totalScore > stats.highestScore) {
+                    stats.highestScore = player.totalScore;
+                    stats.highestScoreGameIndex = gameIndex;
+                }
+                if (player.totalScore < stats.lowestScore) {
+                    stats.lowestScore = player.totalScore;
+                    stats.lowestScoreGameIndex = gameIndex;
+                }
 
                 if (game.winner && game.winner.name === player.name) {
                     stats.wins++;
@@ -1006,6 +1023,7 @@ class SevenWondersCalculator {
             stats.winRate = (stats.wins / stats.gamesPlayed) * 100;
             if (stats.lowestScore === Infinity) {
                 stats.lowestScore = 0;
+                stats.lowestScoreGameIndex = -1;
             }
         });
 
@@ -1017,12 +1035,20 @@ class SevenWondersCalculator {
         let highestScore = 0;
         let lowestScore = Infinity;
         let totalPlayers = 0;
+        let highestScoreGameIndex = -1;
+        let lowestScoreGameIndex = -1;
 
-        games.forEach(game => {
+        games.forEach((game, gameIndex) => {
             game.players.forEach(player => {
                 totalScore += player.totalScore;
-                highestScore = Math.max(highestScore, player.totalScore);
-                lowestScore = Math.min(lowestScore, player.totalScore);
+                if (player.totalScore > highestScore) {
+                    highestScore = player.totalScore;
+                    highestScoreGameIndex = gameIndex;
+                }
+                if (player.totalScore < lowestScore) {
+                    lowestScore = player.totalScore;
+                    lowestScoreGameIndex = gameIndex;
+                }
                 totalPlayers++;
             });
         });
@@ -1030,7 +1056,9 @@ class SevenWondersCalculator {
         return {
             averageScore: totalScore / totalPlayers,
             highestScore: highestScore,
-            lowestScore: lowestScore === Infinity ? 0 : lowestScore
+            lowestScore: lowestScore === Infinity ? 0 : lowestScore,
+            highestScoreGameIndex: highestScoreGameIndex,
+            lowestScoreGameIndex: lowestScoreGameIndex
         };
     }
 
@@ -1040,6 +1068,10 @@ class SevenWondersCalculator {
             this.closeStatistics();
             alert('All statistics have been cleared.');
         }
+    }
+
+    togglePlayerStats(element, playerName) {
+        element.classList.toggle('expanded');
     }
 
     // Player Name Autocomplete Methods
@@ -1251,6 +1283,8 @@ class SevenWondersCalculator {
                                     `;
                                 }).join('')}
                             </div>
+                            
+                            <button class="remove-game-details-btn" onclick="calculator.removeGame(${gameIndex}); calculator.closeGameDetails();">Remove Game</button>
                         </div>
                     </div>
                 </div>

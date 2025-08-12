@@ -259,6 +259,22 @@ header p {
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
+.remove-game-details-btn {
+    background: #f56565;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 15px;
+}
+
+.remove-game-details-btn:hover {
+    background: #e53e3e;
+}
+
 /* Player Name Autocomplete */
 .player-header {
     position: relative;
@@ -806,6 +822,14 @@ input[type="number"] {
     margin-bottom: 8px;
 }
 
+.stat-value[onclick] {
+    transition: color 0.2s ease;
+}
+
+.stat-value[onclick]:hover {
+    color: #2d3748;
+}
+
 .stat-label {
     font-size: 0.9rem;
     color: #718096;
@@ -816,18 +840,35 @@ input[type="number"] {
     background: white;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 15px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.player-stats:hover {
+    border-color: #4299e1;
+    box-shadow: 0 2px 8px rgba(66, 153, 225, 0.1);
+}
+
+.player-stats.expanded {
+    padding: 15px;
+    margin-bottom: 10px;
 }
 
 .player-stats-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
 }
+
+        .player-stats.expanded .player-stats-header {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+        }
 
 .player-stats-name {
     font-size: 1.2rem;
@@ -836,9 +877,29 @@ input[type="number"] {
 }
 
 .player-stats-summary {
+    display: none;
+}
+
+.player-stats.expanded .player-stats-summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.player-stats-compact {
+    display: flex;
     gap: 15px;
+    align-items: center;
+}
+
+.player-stats.expanded .player-stats-compact {
+    display: none;
+}
+
+.compact-stat {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 500;
 }
 
 .player-stat-item {
@@ -849,6 +910,14 @@ input[type="number"] {
     font-size: 1.3rem;
     font-weight: 700;
     color: #4299e1;
+}
+
+.player-stat-value[onclick] {
+    transition: color 0.2s ease;
+}
+
+.player-stat-value[onclick]:hover {
+    color: #2d3748;
 }
 
 .player-stat-label {
