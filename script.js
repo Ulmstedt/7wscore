@@ -168,6 +168,29 @@ class SevenWondersCalculator {
          }
      }
 
+     adjustScienceSymbol(playerId, symbolType, change) {
+         const player = this.players.find(p => p.id === playerId);
+         if (player) {
+             const currentValue = player.scores[symbolType] || 0;
+             const newValue = currentValue + change;
+             
+             // Check minimum value constraint (science symbols can't be negative)
+             if (newValue >= 0) {
+                 player.scores[symbolType] = newValue;
+                 
+                 // Update the input field
+                 const inputElement = document.getElementById(`${symbolType}-${playerId}`);
+                 if (inputElement) {
+                     inputElement.value = newValue;
+                 }
+                 
+                 // Re-render to update science display
+                 this.renderAllCategoriesScoring();
+                 this.updateResults();
+             }
+         }
+     }
+
     calculateScienceScore(scienceGear, scienceMason, scienceScript, scienceFree) {
         // Science scoring: 7 points per set of 3 different symbols + n² points per symbol
         const symbols = [scienceGear || 0, scienceMason || 0, scienceScript || 0];
@@ -499,57 +522,73 @@ class SevenWondersCalculator {
                     
                     const scienceScore = this.calculateScienceScore(gearCount, masonCount, scriptCount, freeCount);
                     
-                    html += `
-                        <div class="scoring-row science-row">
-                            <span class="player-label">${player.name}</span>
-                            <div class="science-inputs">
-                                                                 <div class="science-symbol">
+                                         html += `
+                         <div class="scoring-row science-row">
+                             <span class="player-label">${player.name}</span>
+                             <div class="science-inputs">
+                                 <div class="science-symbol">
                                      <label><img src="resources/Science-Gear.webp" alt="Gear" class="science-icon"></label>
-                                     <input type="number" 
-                                            id="science-gear-${player.id}" 
-                                            value="${gearCount}" 
-                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceGear', this.value)"
-                                            placeholder="0"
-                                            step="1"
-                                            min="0">
+                                     <div class="number-controls">
+                                         <button type="button" class="decrease-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceGear', -1)" title="Decrease by 1">−</button>
+                                         <input type="number" 
+                                                id="science-gear-${player.id}" 
+                                                value="${gearCount}" 
+                                                onchange="calculator.updateScienceSymbol(${player.id}, 'scienceGear', this.value)"
+                                                placeholder="0"
+                                                step="1"
+                                                min="0">
+                                         <button type="button" class="increase-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceGear', 1)" title="Increase by 1">+</button>
+                                     </div>
                                  </div>
                                  <div class="science-symbol">
                                      <label><img src="resources/Science-Mason.webp" alt="Mason" class="science-icon"></label>
-                                     <input type="number" 
-                                            id="science-mason-${player.id}" 
-                                            value="${masonCount}" 
-                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceMason', this.value)"
-                                            placeholder="0"
-                                            step="1"
-                                            min="0">
+                                     <div class="number-controls">
+                                         <button type="button" class="decrease-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceMason', -1)" title="Decrease by 1">−</button>
+                                         <input type="number" 
+                                                id="science-mason-${player.id}" 
+                                                value="${masonCount}" 
+                                                onchange="calculator.updateScienceSymbol(${player.id}, 'scienceMason', this.value)"
+                                                placeholder="0"
+                                                step="1"
+                                                min="0">
+                                         <button type="button" class="increase-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceMason', 1)" title="Increase by 1">+</button>
+                                     </div>
                                  </div>
                                  <div class="science-symbol">
                                      <label><img src="resources/Science-Script.webp" alt="Script" class="science-icon"></label>
-                                     <input type="number" 
-                                            id="science-script-${player.id}" 
-                                            value="${scriptCount}" 
-                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceScript', this.value)"
-                                            placeholder="0"
-                                            step="1"
-                                            min="0">
+                                     <div class="number-controls">
+                                         <button type="button" class="decrease-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceScript', -1)" title="Decrease by 1">−</button>
+                                         <input type="number" 
+                                                id="science-script-${player.id}" 
+                                                value="${scriptCount}" 
+                                                onchange="calculator.updateScienceSymbol(${player.id}, 'scienceScript', this.value)"
+                                                placeholder="0"
+                                                step="1"
+                                                min="0">
+                                         <button type="button" class="increase-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceScript', 1)" title="Increase by 1">+</button>
+                                     </div>
                                  </div>
                                  <div class="science-symbol">
                                      <label>🎲</label>
-                                     <input type="number" 
-                                            id="science-free-${player.id}" 
-                                            value="${freeCount}" 
-                                            onchange="calculator.updateScienceSymbol(${player.id}, 'scienceFree', this.value)"
-                                            placeholder="0"
-                                            step="1"
-                                            min="0">
+                                     <div class="number-controls">
+                                         <button type="button" class="decrease-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceFree', -1)" title="Decrease by 1">−</button>
+                                         <input type="number" 
+                                                id="science-free-${player.id}" 
+                                                value="${freeCount}" 
+                                                onchange="calculator.updateScienceSymbol(${player.id}, 'scienceFree', this.value)"
+                                                placeholder="0"
+                                                step="1"
+                                                min="0">
+                                         <button type="button" class="increase-btn" onclick="calculator.adjustScienceSymbol(${player.id}, 'scienceFree', 1)" title="Increase by 1">+</button>
+                                     </div>
                                  </div>
-                                <div class="science-score-display">
-                                    <span class="score-display">= ${scienceScore.totalScore} pts</span>
-                                    <span class="science-breakdown">${scienceScore.breakdown}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                 <div class="science-score-display">
+                                     <span class="score-display">= ${scienceScore.totalScore} pts</span>
+                                     <span class="science-breakdown">${scienceScore.breakdown}</span>
+                                 </div>
+                             </div>
+                         </div>
+                     `;
                 } else {
                     const currentScore = player.scores[category] || 0;
                     let displayScore, displayText;

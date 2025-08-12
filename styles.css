@@ -409,6 +409,19 @@ header p {
     text-align: center;
 }
 
+/* Remove spinner arrows from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: textfield; /* Standard property */
+}
+
 .score-input input {
     width: 70px;
     padding: 6px 10px;
@@ -447,26 +460,31 @@ header p {
 
 .science-inputs {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 8px;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
 }
 
 .science-symbol {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 4px;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
 }
 
 .science-symbol label {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #2d3748;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 60px;
 }
 
 .science-icon {
@@ -484,6 +502,20 @@ header p {
     font-size: 0.9rem;
     text-align: center;
     transition: border-color 0.2s ease;
+}
+
+.science-symbol .number-controls {
+    gap: 2px;
+}
+
+.science-symbol .decrease-btn, .science-symbol .increase-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+}
+
+.science-symbol .number-controls input[type="number"] {
+    width: 45px;
 }
 
 .science-symbol input:focus {
