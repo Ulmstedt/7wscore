@@ -994,9 +994,9 @@ Thanks!`);
                             <div class="player-stats-header">
                                 <div class="player-stats-name">${playerName}</div>
                                 <div class="player-stats-compact">
-                                    <span class="compact-stat">${player.gamesPlayed} games</span>
-                                    <span class="compact-stat">${player.winRate.toFixed(1)}% win rate</span>
-                                    <span class="compact-stat">${player.averageScore.toFixed(1)} avg</span>
+                                    <span class="compact-stat games-played">${player.gamesPlayed} games</span>
+                                    <span class="compact-stat win-rate">${player.winRate.toFixed(1)}% win rate</span>
+                                    <span class="compact-stat avg-score">${player.averageScore.toFixed(1)} avg</span>
                                 </div>
                                 <div class="player-stats-summary">
                                     <div class="player-stat-item">

@@ -972,6 +972,14 @@ input[type="number"] {
     font-weight: 500;
 }
 
+/* Hide win rate and average score on mobile */
+@media (max-width: 768px) {
+    .compact-stat.win-rate,
+    .compact-stat.avg-score {
+        display: none;
+    }
+}
+
 .player-stat-item {
     text-align: center;
 }
