@@ -756,7 +756,8 @@ Thanks!`);
         resultsHTML += '<div class="score-list">';
         playerResults.forEach((player, index) => {
             const isWinner = player.totalScore === winner.totalScore && player.scores.coins === winner.scores.coins;
-            const coinDisplay = coinsUsedAsTiebreaker ? ` (${player.scores.coins} coins)` : '';
+            // Only show coins for players who tied for the highest score
+            const coinDisplay = (coinsUsedAsTiebreaker && player.totalScore === winner.totalScore) ? ` (${player.scores.coins} coins)` : '';
             resultsHTML += `
                 <div class="score-item ${isWinner ? 'winner-item' : ''}">
                     <span class="player-score">${index + 1}. ${player.name}</span>
