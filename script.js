@@ -31,6 +31,7 @@ class SevenWondersCalculator {
 
     bindEvents() {
         document.getElementById('addPlayer').addEventListener('click', () => this.addPlayer());
+        document.getElementById('clearScores').addEventListener('click', () => this.clearScores());
         document.getElementById('clearAll').addEventListener('click', () => this.clearAll());
         
         // Bind expansion toggles
@@ -113,6 +114,27 @@ class SevenWondersCalculator {
         this.players = [];
         this.playerCounter = 1;
         this.renderPlayers();
+        this.renderAllCategoriesScoring();
+        this.updateResults();
+    }
+
+    clearScores() {
+        // Reset all scores to 0 but keep players
+        this.players.forEach(player => {
+            // Reset all scoring categories to 0
+            Object.keys(player.scores).forEach(category => {
+                player.scores[category] = 0;
+            });
+            // Reset science symbols to 0
+            if (player.scienceSymbols) {
+                player.scienceSymbols.gear = 0;
+                player.scienceSymbols.mason = 0;
+                player.scienceSymbols.script = 0;
+                player.scienceSymbols.wild = 0;
+            }
+        });
+        
+        // Re-render the scoring sections and update results
         this.renderAllCategoriesScoring();
         this.updateResults();
     }
