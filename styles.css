@@ -42,6 +42,7 @@ header p {
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     margin-bottom: 30px;
+    position: relative;
 }
 
 .expansions-section h2, .player-section h2, .scoring-section h2, .results-section h2 {
@@ -137,6 +138,34 @@ header p {
 
 .btn-secondary:hover {
     background: #cbd5e0;
+}
+
+.suggestions-container {
+    position: relative;
+    margin-top: -20px;
+    margin-bottom: 30px;
+    text-align: right;
+}
+
+.btn-suggestions {
+    background: transparent;
+    color: white;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-suggestions:hover {
+    background: #f7fafc;
+    color: #4a5568;
+    opacity: 1;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .btn-danger {
@@ -1528,5 +1557,10 @@ input[type="number"] {
     .player-name {
         margin-right: 0;
         text-align: center;
+    }
+    
+    .suggestions-container {
+        margin-top: 10px;
+        margin-bottom: 20px;
     }
 }

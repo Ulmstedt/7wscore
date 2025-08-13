@@ -139,6 +139,19 @@ class SevenWondersCalculator {
         this.updateResults();
     }
 
+    sendSuggestion() {
+        const subject = encodeURIComponent('7 Wonders Score Calculator - Suggestion');
+        const body = encodeURIComponent(`Hi!
+
+I have a suggestion for the 7 Wonders Score Calculator:
+
+[Please describe your suggestion here]
+
+Thanks!`);
+        const mailtoLink = `mailto:matte___93@hotmail.com?subject=${subject}&body=${body}`;
+        window.open(mailtoLink);
+    }
+
     updatePlayerScore(playerId, category, value) {
         const player = this.players.find(p => p.id === playerId);
         if (player) {
