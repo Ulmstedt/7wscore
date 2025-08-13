@@ -722,6 +722,12 @@ Thanks!`);
         });
 
         const winner = playerResults[0];
+        
+        // Check if coins were used as tiebreaker
+        const coinsUsedAsTiebreaker = playerResults.length > 1 && 
+                                     playerResults[0].totalScore === playerResults[1].totalScore && 
+                                     playerResults[0].scores.coins !== playerResults[1].scores.coins;
+        
         const isTie = playerResults.length > 1 && 
                      playerResults[0].totalScore === playerResults[1].totalScore && 
                      playerResults[0].scores.coins === playerResults[1].scores.coins;
@@ -739,9 +745,10 @@ Thanks!`);
                 </div>
             `;
         } else {
+            const coinDisplay = coinsUsedAsTiebreaker ? ` (${winner.scores.coins} coins)` : '';
             resultsHTML += `
                 <div class="winner">
-                    🏆 Winner: ${winner.name} - ${winner.totalScore} points (${winner.scores.coins} coins)
+                    🏆 Winner: ${winner.name} - ${winner.totalScore} points${coinDisplay}
                 </div>
             `;
         }
@@ -749,10 +756,11 @@ Thanks!`);
         resultsHTML += '<div class="score-list">';
         playerResults.forEach((player, index) => {
             const isWinner = player.totalScore === winner.totalScore && player.scores.coins === winner.scores.coins;
+            const coinDisplay = coinsUsedAsTiebreaker ? ` (${player.scores.coins} coins)` : '';
             resultsHTML += `
                 <div class="score-item ${isWinner ? 'winner-item' : ''}">
                     <span class="player-score">${index + 1}. ${player.name}</span>
-                    <span class="score-value">${player.totalScore} pts (${player.scores.coins} coins)</span>
+                    <span class="score-value">${player.totalScore} pts${coinDisplay}</span>
                 </div>
             `;
         });
