@@ -19,6 +19,7 @@ class SevenWondersCalculator {
             cities: false,
             leaders: false
         };
+        this.showExpansionFilters = false; // Track filter visibility
         this.init();
     }
 
@@ -901,6 +902,11 @@ Thanks!`);
         this.sortRecentGames();
     }
 
+    toggleExpansionFilters() {
+        this.showExpansionFilters = !this.showExpansionFilters;
+        this.showStatistics();
+    }
+
     sortRecentGames() {
         const stats = this.getStatistics();
         if (!stats || !stats.games) return;
@@ -1027,6 +1033,13 @@ Thanks!`);
             <div class="stats-section">
                 <div class="recent-games-header">
                     <h3>🎮 Recent Games</h3>
+                </div>
+                <div class="recent-games-controls">
+                    <div class="filters-button-container">
+                        <button class="filters-btn" onclick="calculator.toggleExpansionFilters()">
+                            🔍 Filters
+                        </button>
+                    </div>
                     <div class="sort-controls">
                         <div class="sort-buttons">
                             <button id="sortByTime" class="sort-btn active" onclick="calculator.setSortBy('time')">Date</button>
@@ -1037,7 +1050,7 @@ Thanks!`);
                         </button>
                     </div>
                 </div>
-                <div class="expansion-filters">
+                <div class="expansion-filters" style="display: ${this.showExpansionFilters ? 'block' : 'none'};">
                     <div class="filter-label">Filter by expansions:</div>
                     <div class="filter-checkboxes">
                         <div class="filter-checkbox">
