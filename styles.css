@@ -346,6 +346,10 @@ header p {
 .category-header {
     padding: 15px 20px;
     color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60px;
 }
 
 /* Category-specific color coding */
@@ -405,15 +409,18 @@ header p {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 4px;
 }
 
 .category-icon {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
 }
 
 .category-header h3 {
@@ -426,7 +433,7 @@ header p {
     opacity: 0.9;
     font-size: 0.85rem;
     margin: 0;
-    margin-left: 32px; /* Align with the category name (icon width only) */
+    margin-left: 52px; /* Align with the category name (icon width 40px + gap 12px) */
 }
 
 .scoring-inputs {
@@ -707,7 +714,7 @@ input[type="number"] {
     text-align: center;
     margin-top: 10px;
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: #666666;
     opacity: 0.8;
 }
 
@@ -1300,11 +1307,7 @@ input[type="number"] {
     border: 1px solid #e2e8f0;
 }
 
-.category-icon {
-    font-size: 1rem;
-    width: 20px;
-    text-align: center;
-}
+
 
         .category-name {
             font-size: 0.85rem;
