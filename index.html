@@ -73,13 +73,14 @@
                 <p class="no-results">Add players and scores to see results</p>
             </div>
             <div class="results-actions">
-                <button class="btn btn-primary" id="saveStatsBtn" onclick="calculator.saveStatistics()">
+                <button class="btn btn-primary" id="saveStatsBtn" onclick="calculator.saveStatistics()" title="Saves game data to your device's local storage">
                     💾 Save Statistics
                 </button>
                 <button class="btn btn-secondary" id="showStatsBtn" onclick="calculator.showStatistics()">
                     📊 Show Statistics
                 </button>
             </div>
+            <p class="storage-notice">Game statistics are saved locally on your device</p>
         </div>
 
         <!-- Statistics Modal -->

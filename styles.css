@@ -703,6 +703,14 @@ input[type="number"] {
     justify-content: center;
 }
 
+.storage-notice {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
 /* Modal Styles */
 .modal {
     display: none;
@@ -1029,6 +1037,73 @@ input[type="number"] {
     outline: none;
     border-color: #4299e1;
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Expansion filters */
+.expansion-filters {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 10px;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-checkbox {
+    position: relative;
+}
+
+.filter-checkbox-input {
+    display: none;
+}
+
+.filter-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.filter-checkbox-label:hover {
+    border-color: #4299e1;
+    background: #edf2f7;
+}
+
+.filter-checkbox-input:checked + .filter-checkbox-label {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+    color: white;
+    border-color: #4299e1;
+    box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);
+}
+
+.filter-icon {
+    font-size: 1.1rem;
+    width: 16px;
+    text-align: center;
+}
+
+.filter-name {
+    font-size: 0.85rem;
 }
 
 .recent-games {

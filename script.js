@@ -13,6 +13,12 @@ class SevenWondersCalculator {
         this.activePlayerId = null; // Track which player input is currently active
         this.sortBy = 'time'; // 'time' or 'score'
         this.sortOrder = 'desc'; // 'asc' or 'desc'
+        this.expansionFilters = {
+            edifice: false,
+            armada: false,
+            cities: false,
+            leaders: false
+        };
         this.init();
     }
 
@@ -849,14 +855,37 @@ class SevenWondersCalculator {
         this.sortRecentGames();
     }
 
+    setExpansionFilter(expansion, enabled) {
+        this.expansionFilters[expansion] = enabled;
+        this.sortRecentGames();
+    }
+
     sortRecentGames() {
         const stats = this.getStatistics();
         if (!stats || !stats.games) return;
 
         const recentGamesContainer = document.getElementById('recentGamesList');
 
-        // Get the last 10 games
-        let recentGames = stats.games.slice(-10);
+        // Get all games and apply expansion filters
+        let filteredGames = stats.games.filter(game => {
+            // If no filters are active, show all games
+            const hasActiveFilters = Object.values(this.expansionFilters).some(filter => filter);
+            if (!hasActiveFilters) return true;
+
+            // Check if the game has the required expansions
+            if (!game.expansions) return false;
+
+            // Game must have ALL selected expansions AND NO unselected expansions
+            const selectedExpansions = Object.keys(this.expansionFilters).filter(expansion => this.expansionFilters[expansion]);
+            const gameExpansions = Object.keys(game.expansions).filter(expansion => game.expansions[expansion] === true);
+            
+            // Check if game has exactly the selected expansions (no more, no less)
+            return selectedExpansions.length === gameExpansions.length && 
+                   selectedExpansions.every(expansion => gameExpansions.includes(expansion));
+        });
+
+        // Get the last 10 games from filtered results
+        let recentGames = filteredGames.slice(-10);
 
         if (this.sortBy === 'score') {
             if (this.sortOrder === 'desc') {
@@ -965,6 +994,39 @@ class SevenWondersCalculator {
                         <button id="sortOrderBtn" class="sort-order-btn" onclick="calculator.toggleSortOrder()" title="Toggle sort order">
                             <span id="sortOrderIcon">↓</span>
                         </button>
+                    </div>
+                </div>
+                <div class="expansion-filters">
+                    <div class="filter-label">Filter by expansions:</div>
+                    <div class="filter-checkboxes">
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterLeaders" class="filter-checkbox-input" ${this.expansionFilters.leaders ? 'checked' : ''} onchange="calculator.setExpansionFilter('leaders', this.checked)">
+                            <label for="filterLeaders" class="filter-checkbox-label">
+                                <span class="filter-icon">👑</span>
+                                <span class="filter-name">Leaders</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterCities" class="filter-checkbox-input" ${this.expansionFilters.cities ? 'checked' : ''} onchange="calculator.setExpansionFilter('cities', this.checked)">
+                            <label for="filterCities" class="filter-checkbox-label">
+                                <span class="filter-icon">🏙️</span>
+                                <span class="filter-name">Cities</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterArmada" class="filter-checkbox-input" ${this.expansionFilters.armada ? 'checked' : ''} onchange="calculator.setExpansionFilter('armada', this.checked)">
+                            <label for="filterArmada" class="filter-checkbox-label">
+                                <span class="filter-icon">⚓</span>
+                                <span class="filter-name">Armada</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterEdifice" class="filter-checkbox-input" ${this.expansionFilters.edifice ? 'checked' : ''} onchange="calculator.setExpansionFilter('edifice', this.checked)">
+                            <label for="filterEdifice" class="filter-checkbox-label">
+                                <span class="filter-icon">🏗️</span>
+                                <span class="filter-name">Edifice</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="recent-games" id="recentGamesList">
