@@ -152,6 +152,12 @@ Thanks!`);
         window.open(mailtoLink);
     }
 
+    donate() {
+        // Open PayPal donation page in a new window
+        const paypalUrl = 'https://www.paypal.com/donate/?hosted_button_id=F2CB8PZHSYYZS';
+        window.open(paypalUrl, '_blank');
+    }
+
     updatePlayerScore(playerId, category, value) {
         const player = this.players.find(p => p.id === playerId);
         if (player) {
