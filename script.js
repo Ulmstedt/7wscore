@@ -17,7 +17,8 @@ class SevenWondersCalculator {
             edifice: false,
             armada: false,
             cities: false,
-            leaders: false
+            leaders: false,
+            baseOnly: false
         };
         this.showExpansionFilters = false; // Track filter visibility
         this.init();
@@ -897,7 +898,8 @@ Thanks!`);
         document.getElementById('sortByTime').classList.toggle('active', sortType === 'time');
         document.getElementById('sortByScore').classList.toggle('active', sortType === 'score');
         
-        this.sortRecentGames();
+        // Re-render statistics so sorting is applied to the list
+        this.showStatistics();
     }
 
     toggleSortOrder() {
@@ -907,12 +909,29 @@ Thanks!`);
         const icon = document.getElementById('sortOrderIcon');
         icon.textContent = this.sortOrder === 'desc' ? '↓' : '↑';
         
-        this.sortRecentGames();
+        // Re-render statistics so sorting is applied to the list
+        this.showStatistics();
     }
 
     setExpansionFilter(expansion, enabled) {
-        this.expansionFilters[expansion] = enabled;
-        this.sortRecentGames();
+        // Enforce mutual exclusivity for Base Only
+        if (expansion === 'baseOnly') {
+            this.expansionFilters.baseOnly = enabled;
+            if (enabled) {
+                this.expansionFilters.leaders = false;
+                this.expansionFilters.cities = false;
+                this.expansionFilters.armada = false;
+                this.expansionFilters.edifice = false;
+            }
+        } else {
+            this.expansionFilters[expansion] = enabled;
+            if (enabled && this.expansionFilters.baseOnly) {
+                this.expansionFilters.baseOnly = false;
+            }
+        }
+
+        // Re-render full statistics so all sections respect the filters
+        this.showStatistics();
     }
 
     toggleExpansionFilters() {
@@ -927,22 +946,7 @@ Thanks!`);
         const recentGamesContainer = document.getElementById('recentGamesList');
 
         // Get all games and apply expansion filters
-        let filteredGames = stats.games.filter(game => {
-            // If no filters are active, show all games
-            const hasActiveFilters = Object.values(this.expansionFilters).some(filter => filter);
-            if (!hasActiveFilters) return true;
-
-            // Check if the game has the required expansions
-            if (!game.expansions) return false;
-
-            // Game must have ALL selected expansions AND NO unselected expansions
-            const selectedExpansions = Object.keys(this.expansionFilters).filter(expansion => this.expansionFilters[expansion]);
-            const gameExpansions = Object.keys(game.expansions).filter(expansion => game.expansions[expansion] === true);
-            
-            // Check if game has exactly the selected expansions (no more, no less)
-            return selectedExpansions.length === gameExpansions.length && 
-                   selectedExpansions.every(expansion => gameExpansions.includes(expansion));
-        });
+        let filteredGames = this.getFilteredGames(stats.games);
 
         // Get the last 10 games from filtered results
         let recentGames = filteredGames.slice(-10);
@@ -969,15 +973,102 @@ Thanks!`);
         recentGamesContainer.innerHTML = this.generateRecentGamesList(recentGames, stats.games.length);
     }
 
+    getFilteredGames(allGames) {
+        return allGames.filter(game => {
+            const hasActiveFilters = Object.values(this.expansionFilters).some(filter => filter);
+            if (!hasActiveFilters) return true;
+            if (!game.expansions) {
+                // If Base Only is selected, treat missing expansions as base game
+                return this.expansionFilters.baseOnly;
+            }
+
+            const selectedExpansions = Object.keys(this.expansionFilters).filter(expansion => this.expansionFilters[expansion]);
+            const gameExpansions = Object.keys(game.expansions).filter(expansion => game.expansions[expansion] === true);
+
+            // If Base Only is selected, include games with no enabled expansions
+            if (this.expansionFilters.baseOnly) {
+                return gameExpansions.length === 0;
+            }
+
+            // Otherwise, game must have EXACTLY the selected expansions (no more, no less)
+            const nonBaseSelected = selectedExpansions.filter(e => e !== 'baseOnly');
+            return nonBaseSelected.length === gameExpansions.length &&
+                   nonBaseSelected.every(expansion => gameExpansions.includes(expansion));
+        });
+    }
+
     generateStatisticsHTML(stats) {
-        const totalGames = stats.games.length;
-        const playerStats = this.calculatePlayerStatistics(stats.games);
-        const overallStats = this.calculateOverallStatistics(stats.games);
-        const recentGames = stats.games.slice(-10).reverse(); // Last 10 games
+        const filteredGames = this.getFilteredGames(stats.games);
+        const totalGames = filteredGames.length;
+        const playerStats = this.calculatePlayerStatistics(filteredGames, stats.games);
+        const overallStats = this.calculateOverallStatistics(filteredGames, stats.games);
+
+        // Prepare recent games (filtered) and apply current sorting preferences
+        let recentGames = filteredGames.slice(-10);
+        if (this.sortBy === 'score') {
+            if (this.sortOrder === 'desc') {
+                recentGames.sort((a, b) => b.winner.score - a.winner.score);
+            } else {
+                recentGames.sort((a, b) => a.winner.score - b.winner.score);
+            }
+        } else {
+            if (this.sortOrder === 'desc') {
+                recentGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else {
+                recentGames.sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+        }
 
         return `
             <div class="stats-section">
                 <h3>📈 Overall Statistics</h3>
+                <div class="recent-games-controls" style="margin-top: 8px;">
+                    <div class="filters-button-container">
+                        <button class="filters-btn" onclick="calculator.toggleExpansionFilters()">
+                            🔍 Filters
+                        </button>
+                    </div>
+                </div>
+                <div class="expansion-filters" style="display: ${this.showExpansionFilters ? 'block' : 'none'};">
+                    <div class="filter-label">Filter by expansions:</div>
+                    <div class="filter-checkboxes">
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterBaseOnly" class="filter-checkbox-input" ${this.expansionFilters.baseOnly ? 'checked' : ''} onchange="calculator.setExpansionFilter('baseOnly', this.checked)">
+                            <label for="filterBaseOnly" class="filter-checkbox-label">
+                                <span class="filter-icon">🏛️</span>
+                                <span class="filter-name">Base Only</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterLeaders" class="filter-checkbox-input" ${this.expansionFilters.leaders ? 'checked' : ''} onchange="calculator.setExpansionFilter('leaders', this.checked)">
+                            <label for="filterLeaders" class="filter-checkbox-label">
+                                <span class="filter-icon">👑</span>
+                                <span class="filter-name">Leaders</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterCities" class="filter-checkbox-input" ${this.expansionFilters.cities ? 'checked' : ''} onchange="calculator.setExpansionFilter('cities', this.checked)">
+                            <label for="filterCities" class="filter-checkbox-label">
+                                <span class="filter-icon">🏙️</span>
+                                <span class="filter-name">Cities</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterArmada" class="filter-checkbox-input" ${this.expansionFilters.armada ? 'checked' : ''} onchange="calculator.setExpansionFilter('armada', this.checked)">
+                            <label for="filterArmada" class="filter-checkbox-label">
+                                <span class="filter-icon">⚓</span>
+                                <span class="filter-name">Armada</span>
+                            </label>
+                        </div>
+                        <div class="filter-checkbox">
+                            <input type="checkbox" id="filterEdifice" class="filter-checkbox-input" ${this.expansionFilters.edifice ? 'checked' : ''} onchange="calculator.setExpansionFilter('edifice', this.checked)">
+                            <label for="filterEdifice" class="filter-checkbox-label">
+                                <span class="filter-icon">🏗️</span>
+                                <span class="filter-name">Edifice</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value">${totalGames}</div>
@@ -988,11 +1079,11 @@ Thanks!`);
                         <div class="stat-label">Average Score</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" ${overallStats.highestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.highestScoreGameIndex})" style="cursor: pointer;"` : ''}>${overallStats.highestScore}</div>
+                        <div class="stat-value" ${overallStats.highestScoreOriginalIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.highestScoreOriginalIndex})" style="cursor: pointer;"` : ''}>${overallStats.highestScore}</div>
                         <div class="stat-label">Highest Score</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" ${overallStats.lowestScoreGameIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.lowestScoreGameIndex})" style="cursor: pointer;"` : ''}>${overallStats.lowestScore}</div>
+                        <div class="stat-value" ${overallStats.lowestScoreOriginalIndex >= 0 ? `onclick="calculator.showGameDetails(${overallStats.lowestScoreOriginalIndex})" style="cursor: pointer;"` : ''}>${overallStats.lowestScore}</div>
                         <div class="stat-label">Lowest Score</div>
                     </div>
                 </div>
@@ -1048,52 +1139,14 @@ Thanks!`);
                     <h3>🎮 Recent Games</h3>
                 </div>
                 <div class="recent-games-controls">
-                    <div class="filters-button-container">
-                        <button class="filters-btn" onclick="calculator.toggleExpansionFilters()">
-                            🔍 Filters
-                        </button>
-                    </div>
                     <div class="sort-controls">
                         <div class="sort-buttons">
-                            <button id="sortByTime" class="sort-btn active" onclick="calculator.setSortBy('time')">Date</button>
-                            <button id="sortByScore" class="sort-btn" onclick="calculator.setSortBy('score')">Score</button>
+                            <button id="sortByTime" class="sort-btn ${this.sortBy === 'time' ? 'active' : ''}" onclick="calculator.setSortBy('time')">Date</button>
+                            <button id="sortByScore" class="sort-btn ${this.sortBy === 'score' ? 'active' : ''}" onclick="calculator.setSortBy('score')">Score</button>
                         </div>
                         <button id="sortOrderBtn" class="sort-order-btn" onclick="calculator.toggleSortOrder()" title="Toggle sort order">
-                            <span id="sortOrderIcon">↓</span>
+                            <span id="sortOrderIcon">${this.sortOrder === 'desc' ? '↓' : '↑'}</span>
                         </button>
-                    </div>
-                </div>
-                <div class="expansion-filters" style="display: ${this.showExpansionFilters ? 'block' : 'none'};">
-                    <div class="filter-label">Filter by expansions:</div>
-                    <div class="filter-checkboxes">
-                        <div class="filter-checkbox">
-                            <input type="checkbox" id="filterLeaders" class="filter-checkbox-input" ${this.expansionFilters.leaders ? 'checked' : ''} onchange="calculator.setExpansionFilter('leaders', this.checked)">
-                            <label for="filterLeaders" class="filter-checkbox-label">
-                                <span class="filter-icon">👑</span>
-                                <span class="filter-name">Leaders</span>
-                            </label>
-                        </div>
-                        <div class="filter-checkbox">
-                            <input type="checkbox" id="filterCities" class="filter-checkbox-input" ${this.expansionFilters.cities ? 'checked' : ''} onchange="calculator.setExpansionFilter('cities', this.checked)">
-                            <label for="filterCities" class="filter-checkbox-label">
-                                <span class="filter-icon">🏙️</span>
-                                <span class="filter-name">Cities</span>
-                            </label>
-                        </div>
-                        <div class="filter-checkbox">
-                            <input type="checkbox" id="filterArmada" class="filter-checkbox-input" ${this.expansionFilters.armada ? 'checked' : ''} onchange="calculator.setExpansionFilter('armada', this.checked)">
-                            <label for="filterArmada" class="filter-checkbox-label">
-                                <span class="filter-icon">⚓</span>
-                                <span class="filter-name">Armada</span>
-                            </label>
-                        </div>
-                        <div class="filter-checkbox">
-                            <input type="checkbox" id="filterEdifice" class="filter-checkbox-input" ${this.expansionFilters.edifice ? 'checked' : ''} onchange="calculator.setExpansionFilter('edifice', this.checked)">
-                            <label for="filterEdifice" class="filter-checkbox-label">
-                                <span class="filter-icon">🏗️</span>
-                                <span class="filter-name">Edifice</span>
-                            </label>
-                        </div>
                     </div>
                 </div>
                 <div class="recent-games" id="recentGamesList">
@@ -1109,10 +1162,10 @@ Thanks!`);
         `;
     }
 
-    calculatePlayerStatistics(games) {
+    calculatePlayerStatistics(games, allGamesReference = null) {
         const playerStats = {};
 
-        games.forEach((game, gameIndex) => {
+        games.forEach((game) => {
             game.players.forEach(player => {
                 if (!playerStats[player.name]) {
                     playerStats[player.name] = {
@@ -1132,11 +1185,11 @@ Thanks!`);
                 
                 if (player.totalScore > stats.highestScore) {
                     stats.highestScore = player.totalScore;
-                    stats.highestScoreGameIndex = gameIndex;
+                    stats.highestScoreGameIndex = allGamesReference ? allGamesReference.findIndex(g => g.date === game.date && g.winner.name === game.winner.name) : -1;
                 }
                 if (player.totalScore < stats.lowestScore) {
                     stats.lowestScore = player.totalScore;
-                    stats.lowestScoreGameIndex = gameIndex;
+                    stats.lowestScoreGameIndex = allGamesReference ? allGamesReference.findIndex(g => g.date === game.date && g.winner.name === game.winner.name) : -1;
                 }
 
                 if (game.winner && game.winner.name === player.name) {
@@ -1159,35 +1212,35 @@ Thanks!`);
         return playerStats;
     }
 
-    calculateOverallStatistics(games) {
+    calculateOverallStatistics(games, allGamesReference = null) {
         let totalScore = 0;
         let highestScore = 0;
         let lowestScore = Infinity;
         let totalPlayers = 0;
-        let highestScoreGameIndex = -1;
-        let lowestScoreGameIndex = -1;
+        let highestScoreOriginalIndex = -1;
+        let lowestScoreOriginalIndex = -1;
 
-        games.forEach((game, gameIndex) => {
+        games.forEach((game) => {
             game.players.forEach(player => {
                 totalScore += player.totalScore;
                 if (player.totalScore > highestScore) {
                     highestScore = player.totalScore;
-                    highestScoreGameIndex = gameIndex;
+                    highestScoreOriginalIndex = allGamesReference ? allGamesReference.findIndex(g => g.date === game.date && g.winner.name === game.winner.name) : -1;
                 }
                 if (player.totalScore < lowestScore) {
                     lowestScore = player.totalScore;
-                    lowestScoreGameIndex = gameIndex;
+                    lowestScoreOriginalIndex = allGamesReference ? allGamesReference.findIndex(g => g.date === game.date && g.winner.name === game.winner.name) : -1;
                 }
                 totalPlayers++;
             });
         });
 
         return {
-            averageScore: totalScore / totalPlayers,
+            averageScore: totalPlayers > 0 ? (totalScore / totalPlayers) : 0,
             highestScore: highestScore,
             lowestScore: lowestScore === Infinity ? 0 : lowestScore,
-            highestScoreGameIndex: highestScoreGameIndex,
-            lowestScoreGameIndex: lowestScoreGameIndex
+            highestScoreOriginalIndex: highestScoreOriginalIndex,
+            lowestScoreOriginalIndex: lowestScoreOriginalIndex
         };
     }
 
