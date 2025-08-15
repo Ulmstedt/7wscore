@@ -36,7 +36,8 @@ class SevenWondersCalculator {
     bindEvents() {
         document.getElementById('addPlayer').addEventListener('click', () => this.addPlayer());
         document.getElementById('clearScores').addEventListener('click', () => this.clearScores());
-        document.getElementById('clearAll').addEventListener('click', () => this.clearAll());
+        const clearAllBtn = document.getElementById('clearAll');
+        if (clearAllBtn) clearAllBtn.addEventListener('click', () => this.clearAll());
         
         // Bind expansion toggles
         document.getElementById('edifice').addEventListener('change', (e) => {
