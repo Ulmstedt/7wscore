@@ -110,6 +110,10 @@ class SevenWondersCalculator {
     }
 
     removePlayer(playerId) {
+        // Enforce minimum of 3 players
+        if (this.players.length <= 3) {
+            return;
+        }
         this.players = this.players.filter(p => p.id !== playerId);
         this.renderPlayers();
         this.renderAllCategoriesScoring();
@@ -117,8 +121,12 @@ class SevenWondersCalculator {
     }
 
     clearAll() {
+        // Keep minimum 3 players when clearing
         this.players = [];
         this.playerCounter = 1;
+        for (let i = 0; i < 3; i++) {
+            this.addPlayer();
+        }
         this.renderPlayers();
         this.renderAllCategoriesScoring();
         this.updateResults();
@@ -455,8 +463,9 @@ Thanks!`);
     createPlayerCard(player, index) {
         const card = document.createElement('div');
         card.className = 'player-card';
+        const showRemoveButton = this.players.length > 3;
         card.innerHTML = `
-            <button class="remove-player-btn" onclick="calculator.removePlayer(${player.id})" title="Remove player" tabindex="-1">×</button>
+            ${showRemoveButton ? `<button class="remove-player-btn" onclick="calculator.removePlayer(${player.id})" title="Remove player" tabindex="-1">×</button>` : ''}
             <div class="player-header">
                 <input type="text" 
                        class="player-name" 
