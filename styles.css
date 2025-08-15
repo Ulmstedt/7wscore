@@ -1118,6 +1118,11 @@ input[type="number"] {
     margin-bottom: 10px;
 }
 
+/* Align sort controls to the right when desired */
+.recent-games-controls.sort-right {
+    justify-content: flex-end;
+}
+
 /* Filters button */
 .filters-button-container {
     margin: 0;

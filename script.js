@@ -1022,7 +1022,7 @@ Thanks!`);
         return `
             <div class="stats-section">
                 <h3>📈 Overall Statistics</h3>
-                <div class="recent-games-controls" style="margin-top: 8px;">
+                <div class="recent-games-controls sort-right" style="margin-top: 8px;">
                     <div class="filters-button-container">
                         <button class="filters-btn" onclick="calculator.toggleExpansionFilters()">
                             🔍 Filters
@@ -1138,7 +1138,7 @@ Thanks!`);
                 <div class="recent-games-header">
                     <h3>🎮 Recent Games</h3>
                 </div>
-                <div class="recent-games-controls">
+                <div class="recent-games-controls sort-right">
                     <div class="sort-controls">
                         <div class="sort-buttons">
                             <button id="sortByTime" class="sort-btn ${this.sortBy === 'time' ? 'active' : ''}" onclick="calculator.setSortBy('time')">Date</button>
