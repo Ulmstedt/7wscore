@@ -26,7 +26,10 @@ class SevenWondersCalculator {
     init() {
         this.bindEvents();
         this.syncExpansionStates(); // Sync expansion states with checkboxes
-        this.addPlayer(); // Start with one player
+        // Start with three players by default
+        for (let i = 0; i < 3; i++) {
+            this.addPlayer();
+        }
         this.renderAllCategoriesScoring();
     }
 
