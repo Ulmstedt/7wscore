@@ -175,7 +175,15 @@ Thanks!`);
     updatePlayerScore(playerId, category, value) {
         const player = this.players.find(p => p.id === playerId);
         if (player) {
-            player.scores[category] = parseInt(value) || 0;
+            const parsedValue = parseInt(value) || 0;
+            player.scores[category] = parsedValue;
+
+            // Toggle negative styling on the input itself
+            const inputElement = document.getElementById(`${category}-${playerId}`);
+            if (inputElement) {
+                inputElement.classList.toggle('negative-value', parsedValue < 0);
+            }
+
             this.updateResults();
         }
     }
@@ -220,6 +228,7 @@ Thanks!`);
                  const inputElement = document.getElementById(`${category}-${playerId}`);
                  if (inputElement) {
                      inputElement.value = newValue;
+                     inputElement.classList.toggle('negative-value', newValue < 0);
                  }
                  
                  // Update real-time displays
@@ -303,7 +312,7 @@ Thanks!`);
         
         let breakdown = `Sets: ${sets}×7 + Individual: ${individualPoints}`;
         if (free > 0) {
-            breakdown += ` (Wildcards: <img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} <img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${masonWild} <img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild})`;
+            breakdown += ` (Wildcards: <img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} <img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;"> <img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild})`;
         }
         
         return {
@@ -685,6 +694,7 @@ Thanks!`);
                                      <input type="number" 
                                             id="${category}-${player.id}" 
                                             value="${currentScore}" 
+                                            class="${currentScore < 0 ? 'negative-value' : ''}"
                                             onchange="calculator.updatePlayerScore(${player.id}, '${category}', this.value)"
                                             ${category === 'coins' ? `oninput="calculator.updateCoinDisplay(${player.id}, this.value)"` : ''}
                                             ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
@@ -775,7 +785,7 @@ Thanks!`);
             resultsHTML += `
                 <div class="score-item ${isWinner ? 'winner-item' : ''}">
                     <span class="player-score">${index + 1}. ${player.name}</span>
-                    <span class="score-value">${player.totalScore} pts${coinDisplay}</span>
+                    <span class="score-value ${player.totalScore < 0 ? 'negative-total' : ''}">${player.totalScore} pts${coinDisplay}</span>
                 </div>
             `;
         });
@@ -1465,7 +1475,7 @@ Thanks!`);
                                             <div class="player-score-header">
                                                 <span class="player-rank">${index + 1}</span>
                                                 <span class="player-name-detail">${player.name}</span>
-                                                <span class="player-total-score">${player.totalScore} pts</span>
+                                                <span class="player-total-score ${player.totalScore < 0 ? 'negative-total' : ''}">${player.totalScore} pts</span>
                                             </div>
                                             <div class="player-score-breakdown">
                                                 ${this.generateScoreBreakdown(player, game.expansions)}

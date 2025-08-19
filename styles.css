@@ -616,6 +616,20 @@ input[type="number"] {
     font-weight: 700;
 }
 
+/* Negative value styling */
+.score-input input.negative-value {
+    color: #e53e3e;
+    border-color: #feb2b2;
+}
+
+.score-value.negative-total {
+    color: #e53e3e;
+}
+
+.player-total-score.negative-total {
+    color: #e53e3e;
+}
+
 /* Science Cards Styling */
 .science-row {
     flex-direction: column;
