@@ -212,7 +212,7 @@ Thanks!`);
              const newValue = currentValue + change;
              
              // Check minimum value constraints
-             const minValue = category === 'militaryConflict' ? -999 : 0;
+             const minValue = (category === 'militaryConflict' || category === 'navalCombat') ? -999 : 0;
              if (newValue >= minValue) {
                  player.scores[category] = newValue;
                  
@@ -690,7 +690,7 @@ Thanks!`);
                                             ${category === 'debt' ? `oninput="calculator.updateDebtDisplay(${player.id}, this.value)"` : ''}
                                             placeholder="${categoryInfo.placeholder}"
                                             step="1"
-                                            min="${category === 'militaryConflict' ? '-999' : '0'}">
+                                            min="${(category === 'militaryConflict' || category === 'navalCombat') ? '-999' : '0'}">
                                      <button type="button" class="increase-btn" onclick="calculator.adjustScore(${player.id}, '${category}', 1)" title="Increase by 1">+</button>
                                  </div>
                                  ${category === 'coins' ? 
