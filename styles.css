@@ -1305,15 +1305,32 @@ input[type="number"] {
     font-size: 1.1rem;
 }
 
-.clear-stats-btn {
-    background: #f56565;
-    color: white;
-    border: none;
+.stats-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.stats-actions .btn {
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    border: none;
+}
+
+.clear-stats-btn {
+    background: #f56565;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
 }
 
 .clear-stats-btn:hover {
@@ -1687,5 +1704,15 @@ input[type="number"] {
     .suggestions-container {
         margin-top: 10px;
         margin-bottom: 20px;
+    }
+    
+    .stats-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .stats-actions .btn {
+        width: 100%;
+        max-width: 200px;
     }
 }

@@ -896,6 +896,20 @@ Thanks!`);
                     <h3>No Statistics Available</h3>
                     <p>No games have been saved yet. Play a game and click "Save Statistics" to start tracking your progress!</p>
                 </div>
+
+                <div class="stats-section" style="text-align: center;">
+                    <div class="stats-actions">
+                        <button class="btn btn-secondary" id="importStatsBtn" onclick="calculator.importStatistics()" title="Import statistics from a JSON file">
+                            📥 Import Statistics
+                        </button>
+                        <button class="btn btn-secondary" id="exportStatsBtn" onclick="calculator.exportStatistics()" title="Export statistics to a JSON file">
+                            📤 Export Statistics
+                        </button>
+                        <button class="clear-stats-btn" onclick="calculator.clearStatistics()">
+                            🗑️ Clear All Statistics
+                        </button>
+                    </div>
+                </div>
             `;
         } else {
             content.innerHTML = this.generateStatisticsHTML(stats);
@@ -1195,9 +1209,17 @@ Thanks!`);
             </div>
 
             <div class="stats-section" style="text-align: center;">
-                <button class="clear-stats-btn" onclick="calculator.clearStatistics()">
-                    🗑️ Clear All Statistics
-                </button>
+                <div class="stats-actions">
+                    <button class="btn btn-secondary" id="importStatsBtn" onclick="calculator.importStatistics()" title="Import statistics from a JSON file">
+                        📥 Import Statistics
+                    </button>
+                    <button class="btn btn-secondary" id="exportStatsBtn" onclick="calculator.exportStatistics()" title="Export statistics to a JSON file">
+                        📤 Export Statistics
+                    </button>
+                    <button class="clear-stats-btn" onclick="calculator.clearStatistics()">
+                        🗑️ Clear All Statistics
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -1290,6 +1312,99 @@ Thanks!`);
             this.closeStatistics();
             alert('All statistics have been cleared.');
         }
+    }
+
+    exportStatistics() {
+        const stats = this.getStatistics();
+        if (stats.games.length === 0) {
+            alert('No statistics to export!');
+            return;
+        }
+
+        const dataStr = JSON.stringify(stats, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `7wonders-stats-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show success feedback
+        const exportButton = document.getElementById('exportStatsBtn');
+        const originalText = exportButton.innerHTML;
+        const originalClass = exportButton.className;
+        
+        exportButton.innerHTML = '✅ Exported';
+        exportButton.className = 'btn btn-success';
+        
+        setTimeout(() => {
+            exportButton.innerHTML = originalText;
+            exportButton.className = originalClass;
+        }, 2000);
+    }
+
+    importStatistics() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate the imported data structure
+                    if (!importedData.games || !Array.isArray(importedData.games)) {
+                        throw new Error('Invalid file format: missing games array');
+                    }
+
+                    // Validate each game has required structure
+                    for (const game of importedData.games) {
+                        if (!game.date || !game.players || !Array.isArray(game.players) || !game.winner) {
+                            throw new Error('Invalid file format: missing required game data');
+                        }
+                    }
+
+                    const currentStats = this.getStatistics();
+                    const totalGames = currentStats.games.length + importedData.games.length;
+                    
+                    if (confirm(`This will import ${importedData.games.length} games. You currently have ${currentStats.games.length} games. Continue?`)) {
+                        // Merge the imported data with existing data
+                        currentStats.games.push(...importedData.games);
+                        localStorage.setItem('sevenWondersStats', JSON.stringify(currentStats));
+                        
+                        // Show success feedback
+                        const importButton = document.getElementById('importStatsBtn');
+                        const originalText = importButton.innerHTML;
+                        const originalClass = importButton.className;
+                        
+                        importButton.innerHTML = '✅ Imported';
+                        importButton.className = 'btn btn-success';
+                        
+                        setTimeout(() => {
+                            importButton.innerHTML = originalText;
+                            importButton.className = originalClass;
+                        }, 2000);
+                        
+                        // Refresh statistics display if modal is open
+                        if (document.getElementById('statsModal').style.display === 'block') {
+                            this.showStatistics();
+                        }
+                        
+                        alert(`Successfully imported ${importedData.games.length} games! Total games: ${totalGames}`);
+                    }
+                } catch (error) {
+                    alert(`Error importing file: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
 
     togglePlayerStats(element, playerName) {
