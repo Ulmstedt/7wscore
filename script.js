@@ -312,7 +312,18 @@ Thanks!`);
         
         let breakdown = `Sets: ${sets}×7 + Individual: ${individualPoints}`;
         if (free > 0) {
-            breakdown += ` (Wildcards: <img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} <img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;"> <img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild})`;
+            //breakdown += ` (Wildcards: <img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} <img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${masonWild} <img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild})`;
+            breakdown += ` (Wildcards: `;
+            if(gearWild > 0) {
+                breakdown += `<img src="resources/Science-Gear.webp" alt="Gear" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${gearWild} `;
+            }
+            if(masonWild > 0) {
+                breakdown += `<img src="resources/Science-Mason.webp" alt="Mason" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${masonWild} `;
+            }
+            if(scriptWild > 0) {
+                breakdown += `<img src="resources/Science-Script.webp" alt="Script" class="science-icon" style="display: inline; width: 16px; height: 16px;">+${scriptWild} `;
+            }
+            breakdown += `)`;
         }
         
         return {
