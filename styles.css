@@ -1427,6 +1427,13 @@ input[type="number"] {
     border: 1px solid #e2e8f0;
 }
 
+.score-category .category-icon {
+    margin-top: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+}
+
 
 
         .category-name {
