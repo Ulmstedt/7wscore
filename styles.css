@@ -448,6 +448,10 @@ header p {
     background: linear-gradient(135deg, #68d391, #48bb78);
 }
 
+.category-header.naval-track {
+    background: linear-gradient(135deg, #63b3ed, #4299e1);
+}
+
 .category-header.leaders {
     background: linear-gradient(135deg, #f6e05e, #d69e2e);
 }
@@ -1455,6 +1459,7 @@ input[type="number"] {
         .score-category.science-cards .category-name,
         .score-category.naval-combat .category-name,
         .score-category.islands .category-name,
+        .score-category.naval-track .category-name,
         .score-category.leaders .category-name,
         .score-category.black-cards .category-name,
         .score-category.projects .category-name {
@@ -1471,6 +1476,7 @@ input[type="number"] {
         .score-category.science-cards .category-score,
         .score-category.naval-combat .category-score,
         .score-category.islands .category-score,
+        .score-category.naval-track .category-score,
         .score-category.leaders .category-score,
         .score-category.black-cards .category-score,
         .score-category.projects .category-score {
@@ -1535,6 +1541,12 @@ input[type="number"] {
         .score-category.islands {
             background: linear-gradient(135deg, #68d391, #48bb78);
             border-color: #48bb78;
+            color: white;
+        }
+
+        .score-category.naval-track {
+            background: linear-gradient(135deg, #63b3ed, #4299e1);
+            border-color: #4299e1;
             color: white;
         }
  

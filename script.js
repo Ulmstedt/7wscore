@@ -94,6 +94,7 @@ class SevenWondersCalculator {
                 // Armada expansion
                 navalCombat: 0,
                 islands: 0,
+                navalTrack: 0,
                 // Leaders expansion
                 leaders: 0,
                 // Cities expansion
@@ -360,7 +361,7 @@ Thanks!`);
         
         // Add Armada expansion scores if enabled
         if (this.expansions.armada) {
-            total += scores.navalCombat + scores.islands;
+            total += scores.navalCombat + scores.islands + scores.navalTrack;
         }
         
         // Add Leaders expansion scores if enabled
@@ -445,6 +446,12 @@ Thanks!`);
                 placeholder: '0',
                 icon: '🏝️'
             },
+            navalTrack: {
+                name: 'Naval Track',
+                description: 'Points from naval track progression',
+                placeholder: '0',
+                icon: '<img src="resources/Strength-Naval1.webp" alt="Naval Track" class="category-icon">'
+            },
             // Leaders expansion categories
             leaders: {
                 name: 'Leaders',
@@ -522,7 +529,7 @@ Thanks!`);
         ];
 
         // Define expansion categories
-        const armadaCategories = ['navalCombat', 'islands'];
+        const armadaCategories = ['navalCombat', 'islands', 'navalTrack'];
         const leadersCategories = ['leaders'];
         const citiesCategories = ['cityCards'];
         const edificeCategories = ['projects'];
@@ -580,6 +587,9 @@ Thanks!`);
                     break;
                 case 'islands':
                     categoryClass = 'islands';
+                    break;
+                case 'navalTrack':
+                    categoryClass = 'naval-track';
                     break;
                 case 'leaders':
                     categoryClass = 'leaders';
@@ -1527,7 +1537,8 @@ Thanks!`);
          // Expansion categories
          const armadaCategories = [
              { key: 'navalCombat', name: 'Naval Combat', icon: '<img src="resources/Strength-Naval1.webp" alt="Naval Combat" class="category-icon">' },
-             { key: 'islands', name: 'Islands', icon: '🏝️' }
+             { key: 'islands', name: 'Islands', icon: '🏝️' },
+             { key: 'navalTrack', name: 'Naval Track', icon: '<img src="resources/Strength-Naval1.webp" alt="Naval Track" class="category-icon">' }
          ];
          const leadersCategories = [
              { key: 'leaders', name: 'Leaders', icon: '👑' }
@@ -1591,6 +1602,9 @@ Thanks!`);
                       break;
                   case 'islands':
                       categoryClass = 'islands';
+                      break;
+                  case 'navalTrack':
+                      categoryClass = 'naval-track';
                       break;
                   case 'leaders':
                       categoryClass = 'leaders';
