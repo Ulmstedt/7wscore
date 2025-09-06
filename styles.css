@@ -1715,4 +1715,28 @@ input[type="number"] {
         width: 100%;
         max-width: 200px;
     }
+    
+    /* Game Details Modal Mobile Fixes */
+    .player-score-breakdown {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 10px;
+    }
+    
+    .score-category {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .player-score-header {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .player-name-detail {
+        margin-left: 0;
+    }
 }
