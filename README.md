@@ -54,44 +54,6 @@ A modern, responsive web application for calculating end-game scores in the boar
 - **Visual score representation** - Color-coded categories in game details
 - **Game removal** - Delete individual games from history
 
-## 🚀 Quick Start
-
-### Option 1: GitHub Pages (Recommended)
-1. Push this repository to GitHub
-2. Go to Settings → Pages
-3. Select "Deploy from a branch" → "main" → "/ (root)"
-4. Your site will be live at `https://yourusername.github.io/7wscore/`
-
-### Option 2: Local Development
-1. Clone or download this repository
-2. Open `index.html` in your web browser
-3. Start scoring!
-
-### Option 3: Other Hosting Services
-- **Netlify**: Drag and drop the folder to [netlify.com](https://netlify.com)
-- **Vercel**: Import repository to [vercel.com](https://vercel.com)
-- **Firebase**: Use Firebase CLI to deploy
-- **Surge**: Run `surge` in the project directory
-
-## 📁 Project Structure
-
-```
-7wscore/
-├── index.html          # Main HTML structure
-├── styles.css          # All styling and responsive design
-├── script.js           # Application logic and scoring algorithms
-├── resources/          # Game icons and images
-│   ├── Coin-3.webp
-│   ├── wonder.webp
-│   ├── Strength-Military.webp
-│   ├── Strength-Naval1.webp
-│   ├── Victory-1.webp
-│   ├── Science-Gear.webp
-│   ├── Science-Mason.webp
-│   └── Science-Script.webp
-└── README.md           # This file
-```
-
 ## 🎮 How to Use
 
 ### Basic Scoring
