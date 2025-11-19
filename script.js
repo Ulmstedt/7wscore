@@ -1,5 +1,6 @@
 class SevenWondersCalculator {
-    constructor() {
+    constructor(options = {}) {
+        const { autoInit = true } = options;
         this.players = [];
         this.playerCounter = 1;
         this.expansions = {
@@ -21,7 +22,9 @@ class SevenWondersCalculator {
             baseOnly: false
         };
         this.showExpansionFilters = false; // Track filter visibility
-        this.init();
+        if (autoInit) {
+            this.init();
+        }
     }
 
     init() {
@@ -35,8 +38,12 @@ class SevenWondersCalculator {
     }
 
     bindEvents() {
-        document.getElementById('addPlayer').addEventListener('click', () => this.addPlayer());
-        document.getElementById('clearScores').addEventListener('click', () => this.clearScores());
+        const addPlayerBtn = document.getElementById('addPlayer');
+        if (addPlayerBtn) addPlayerBtn.addEventListener('click', () => this.addPlayer());
+
+        const clearScoresBtn = document.getElementById('clearScores');
+        if (clearScoresBtn) clearScoresBtn.addEventListener('click', () => this.clearScores());
+
         const clearAllBtn = document.getElementById('clearAll');
         if (clearAllBtn) clearAllBtn.addEventListener('click', () => this.clearAll());
 
@@ -49,22 +56,37 @@ class SevenWondersCalculator {
         });
 
         // Bind expansion toggles
-        document.getElementById('edifice').addEventListener('change', (e) => {
-            this.expansions.edifice = e.target.checked;
-            this.renderAllCategoriesScoring();
-        });
-        document.getElementById('armada').addEventListener('change', (e) => {
-            this.expansions.armada = e.target.checked;
-            this.renderAllCategoriesScoring();
-        });
-        document.getElementById('cities').addEventListener('change', (e) => {
-            this.expansions.cities = e.target.checked;
-            this.renderAllCategoriesScoring();
-        });
-        document.getElementById('leaders').addEventListener('change', (e) => {
-            this.expansions.leaders = e.target.checked;
-            this.renderAllCategoriesScoring();
-        });
+        const edificeToggle = document.getElementById('edifice');
+        if (edificeToggle) {
+            edificeToggle.addEventListener('change', (e) => {
+                this.expansions.edifice = e.target.checked;
+                this.renderAllCategoriesScoring();
+            });
+        }
+
+        const armadaToggle = document.getElementById('armada');
+        if (armadaToggle) {
+            armadaToggle.addEventListener('change', (e) => {
+                this.expansions.armada = e.target.checked;
+                this.renderAllCategoriesScoring();
+            });
+        }
+
+        const citiesToggle = document.getElementById('cities');
+        if (citiesToggle) {
+            citiesToggle.addEventListener('change', (e) => {
+                this.expansions.cities = e.target.checked;
+                this.renderAllCategoriesScoring();
+            });
+        }
+
+        const leadersToggle = document.getElementById('leaders');
+        if (leadersToggle) {
+            leadersToggle.addEventListener('change', (e) => {
+                this.expansions.leaders = e.target.checked;
+                this.renderAllCategoriesScoring();
+            });
+        }
     }
 
     syncExpansionStates() {
@@ -1890,21 +1912,32 @@ Thanks!`);
     }
 }
 
-// Initialize the calculator when the page loads
+// Initialize the calculator when the page loads (browser only)
 let calculator;
-document.addEventListener('DOMContentLoaded', () => {
-    calculator = new SevenWondersCalculator();
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ensure essential UI elements exist before initializing (prevents test/runtime errors)
+        if (!document.getElementById('addPlayer')) {
+            return;
+        }
 
-    // Add modal close functionality
-    const modal = document.getElementById('statsModal');
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            calculator.closeStatistics();
-        }
-        // Close game details modal when clicking outside
-        const gameDetailsModal = document.getElementById('gameDetailsModal');
-        if (event.target === gameDetailsModal) {
-            calculator.closeGameDetails();
-        }
+        calculator = new SevenWondersCalculator();
+
+        // Add modal close functionality
+        const modal = document.getElementById('statsModal');
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                calculator.closeStatistics();
+            }
+            // Close game details modal when clicking outside
+            const gameDetailsModal = document.getElementById('gameDetailsModal');
+            if (event.target === gameDetailsModal) {
+                calculator.closeGameDetails();
+            }
+        });
     });
-});
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SevenWondersCalculator;
+}

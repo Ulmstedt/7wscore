@@ -1,0 +1,23 @@
+{
+  "name": "7wscore",
+  "version": "1.0.0",
+  "description": "> **🎵 Vibe Coded** - This entire project was vibe coded using Cursor ✨",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ulmstedt/7wscore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ulmstedt/7wscore/issues"
+  },
+  "homepage": "https://github.com/Ulmstedt/7wscore#readme",
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}
