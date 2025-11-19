@@ -2,7 +2,7 @@
   "name": "7wscore",
   "version": "1.0.0",
   "description": "> **🎵 Vibe Coded** - This entire project was vibe coded using Cursor ✨",
-  "main": "script.js",
+  "main": "src/calculator.js",
   "scripts": {
     "test": "jest"
   },

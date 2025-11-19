@@ -1,4 +1,4 @@
-const SevenWondersCalculator = require('../script');
+const SevenWondersCalculator = require('../src/calculator.js');
 
 describe('SevenWondersCalculator core scoring', () => {
     let calculator;
