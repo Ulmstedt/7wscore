@@ -40,6 +40,14 @@ class SevenWondersCalculator {
         const clearAllBtn = document.getElementById('clearAll');
         if (clearAllBtn) clearAllBtn.addEventListener('click', () => this.clearAll());
 
+        document.addEventListener('click', (event) => {
+            const clickedTrigger = event.target.closest('.science-detail-trigger');
+            const clickedPanel = event.target.closest('.science-detail-panel');
+            if (!clickedTrigger && !clickedPanel) {
+                this.closeAllScienceDetails();
+            }
+        });
+
         // Bind expansion toggles
         document.getElementById('edifice').addEventListener('change', (e) => {
             this.expansions.edifice = e.target.checked;
@@ -331,7 +339,23 @@ Thanks!`);
             sets: sets,
             individualPoints: individualPoints,
             totalScore: maxTotalScore,
-            breakdown: breakdown
+            breakdown: breakdown,
+            baseSymbols: {
+                gear: symbols[0],
+                mason: symbols[1],
+                script: symbols[2]
+            },
+            wildAssignment: {
+                gear: gearWild,
+                mason: masonWild,
+                script: scriptWild
+            },
+            totals: {
+                gear: totalGear,
+                mason: totalMason,
+                script: totalScript
+            },
+            freeSymbols: free
         };
     }
 
@@ -1606,6 +1630,7 @@ Thanks!`);
                             <div class="game-details-scores">
                                 ${sortedPlayers.map((player, index) => {
                 const isWinner = index === 0;
+                const playerKey = `game-${gameIndex}-player-${index}`;
                 return `
                                         <div class="player-score-detail ${isWinner ? 'winner-detail' : ''}">
                                             <div class="player-score-header">
@@ -1614,7 +1639,7 @@ Thanks!`);
                                                 <span class="player-total-score ${player.totalScore < 0 ? 'negative-total' : ''}">${player.totalScore} pts</span>
                                             </div>
                                             <div class="player-score-breakdown">
-                                                ${this.generateScoreBreakdown(player, game.expansions)}
+                                                ${this.generateScoreBreakdown(player, game.expansions, playerKey)}
                                             </div>
                                         </div>
                                     `;
@@ -1636,7 +1661,10 @@ Thanks!`);
         }
     }
 
-    generateScoreBreakdown(player, expansions = {}) {
+    generateScoreBreakdown(player, expansions = {}, playerKey = '') {
+        const fallbackId = `player-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const playerIdentifier = this.sanitizeForId(playerKey || player.name || fallbackId);
+
         // Base categories (always shown)
         const baseCategories = [
             { key: 'militaryConflict', name: 'Military Conflict', icon: '<img src="resources/Strength-Military.webp" alt="Military Conflict" class="category-icon">' },
@@ -1683,18 +1711,11 @@ Thanks!`);
 
         return categories.map(category => {
             let score = player.scores[category.key] || 0;
-
-            if (category.key === 'scienceCards') {
-                const scienceScore = this.calculateScienceScore(
-                    player.scores.scienceGear || 0,
-                    player.scores.scienceMason || 0,
-                    player.scores.scienceScript || 0,
-                    player.scores.scienceFree || 0
-                );
-                score = scienceScore.totalScore;
-            }
-
-            const scoreClass = score < 0 ? 'negative-score' : 'positive-score';
+            let scoreClass = score < 0 ? 'negative-score' : 'positive-score';
+            let scoreElement = `<span class="category-score ${scoreClass}">${score}</span>`;
+            let extraContent = '';
+            let containerTag = 'div';
+            let containerAttributes = '';
 
             // Determine CSS class for category styling to match main interface
             let categoryClass = '';
@@ -1743,14 +1764,122 @@ Thanks!`);
                     break;
             }
 
+            if (category.key === 'scienceCards') {
+                const scienceScore = this.calculateScienceScore(
+                    player.scores.scienceGear || 0,
+                    player.scores.scienceMason || 0,
+                    player.scores.scienceScript || 0,
+                    player.scores.scienceFree || 0
+                );
+                score = scienceScore.totalScore;
+                scoreClass = score < 0 ? 'negative-score' : 'positive-score';
+                scoreElement = `<span class="category-score ${scoreClass}">${score}</span>`;
+                const detailId = this.getScienceDetailId(`${playerIdentifier}-${category.key}`);
+                extraContent = this.generateScienceDetailPanel(player.name, scienceScore, detailId);
+                containerTag = 'button';
+                containerAttributes = `type="button" class="score-category ${categoryClass} science-detail-trigger" data-science-detail-trigger="${detailId}" aria-expanded="false" onclick="calculator.toggleScienceDetails('${detailId}', event)"`;
+            } else {
+                containerAttributes = `class="score-category ${categoryClass}"`;
+            }
+
             return `
-                   <div class="score-category ${categoryClass}">
+                   <${containerTag} ${containerAttributes}>
                        <span class="category-icon">${category.icon}</span>
                        <span class="category-name">${category.name}</span>
-                       <span class="category-score ${scoreClass}">${score}</span>
-                   </div>
+                       ${scoreElement}
+                   </${containerTag}>
+                   ${extraContent}
                `;
         }).join('');
+    }
+
+    getScienceDetailId(identifier) {
+        return `science-detail-${identifier}`;
+    }
+
+    sanitizeForId(value = '') {
+        const sanitized = value.toString().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+        return sanitized || `player-${Date.now()}`;
+    }
+
+    generateScienceDetailPanel(playerName, scienceScore, detailId) {
+        const symbolConfigs = [
+            { key: 'gear', label: 'Gear', icon: 'resources/Science-Gear.webp' },
+            { key: 'mason', label: 'Tablet', icon: 'resources/Science-Mason.webp' },
+            { key: 'script', label: 'Compass', icon: 'resources/Science-Script.webp' }
+        ];
+
+        const symbolRows = symbolConfigs.map(symbol => {
+            const baseValue = (scienceScore.baseSymbols && scienceScore.baseSymbols[symbol.key]) || 0;
+
+            return `
+                <div class="science-detail-symbol compact">
+                    <div class="science-detail-icon">
+                        <img src="${symbol.icon}" alt="${symbol.label}" class="science-icon">
+                        <span>${symbol.label}</span>
+                    </div>
+                    <span class="science-detail-total">${baseValue}</span>
+                </div>
+            `;
+        }).join('');
+
+        const totalWildcards = scienceScore.freeSymbols || 0;
+        const wildRow = `
+            <div class="science-detail-symbol compact">
+                <div class="science-detail-icon">
+                    <span class="science-wild-icon">🎲</span>
+                    <span>Wildcards</span>
+                </div>
+                <span class="science-detail-total">${totalWildcards}</span>
+            </div>
+        `;
+
+        return `
+            <div class="science-detail-panel" id="${detailId}">
+                <div class="science-detail-header">
+                    <span>${playerName}'s science breakdown</span>
+                    <button type="button" class="science-detail-close" onclick="calculator.toggleScienceDetails('${detailId}', event)" aria-label="Close science details">&times;</button>
+                </div>
+                <div class="science-detail-grid">
+                    ${symbolRows}
+                    ${wildRow}
+                </div>
+                <div class="science-detail-summary">
+                    <span>Sets: ${scienceScore.sets}</span>
+                    <span>Individual Points: ${scienceScore.individualPoints}</span>
+                    <span>Total: ${scienceScore.totalScore}</span>
+                </div>
+                <div class="science-detail-breakdown-text">${scienceScore.breakdown}</div>
+            </div>
+        `;
+    }
+
+    toggleScienceDetails(detailId, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        const panel = document.getElementById(detailId);
+        if (!panel) return;
+
+        const trigger = document.querySelector(`[data-science-detail-trigger="${detailId}"]`);
+        const isVisible = panel.classList.contains('visible');
+
+        if (isVisible) {
+            panel.classList.remove('visible');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        } else {
+            this.closeAllScienceDetails();
+            panel.classList.add('visible');
+            if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    closeAllScienceDetails() {
+        const openPanels = document.querySelectorAll('.science-detail-panel.visible');
+        openPanels.forEach(panel => panel.classList.remove('visible'));
+
+        const activeTriggers = document.querySelectorAll('.science-detail-trigger[aria-expanded="true"]');
+        activeTriggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'false'));
     }
 
     closeGameDetails() {

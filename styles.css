@@ -721,6 +721,150 @@ input[type="number"] {
     font-style: italic;
 }
 
+.science-detail-trigger {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.science-detail-trigger:focus {
+    outline: 2px solid rgba(66, 153, 225, 0.4);
+    outline-offset: 3px;
+}
+
+.science-detail-panel {
+    display: none;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    width: 100%;
+    color: #22543d;
+}
+.player-score-breakdown .science-detail-panel {
+    grid-column: 1 / -1;
+}
+
+.science-detail-panel.visible {
+    display: block;
+}
+
+.science-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.science-detail-close {
+    background: transparent;
+    border: none;
+    color: #2f855a;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.science-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.science-detail-symbol {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #c6f6d5;
+}
+
+.science-detail-symbol.compact {
+    padding: 6px 10px;
+}
+
+.science-detail-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2f855a;
+}
+
+.science-detail-total {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #22543d;
+}
+
+.science-wild-icon {
+    font-size: 1rem;
+}
+
+.science-detail-values {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 12px;
+    font-size: 0.85rem;
+    color: #2f855a;
+}
+
+.science-detail-values div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.science-detail-values div .label {
+    align-self: flex-start;
+}
+
+.science-detail-values .label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #4a5568;
+}
+
+.science-detail-values .label.total {
+    color: #22543d;
+}
+
+.science-detail-values span:last-child {
+    font-weight: 600;
+    text-align: right;
+}
+
+.science-detail-summary {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.science-detail-breakdown-text {
+    font-size: 0.75rem;
+    color: #2f855a;
+    margin-top: 6px;
+}
+
+.science-detail-wild-info {
+    font-size: 0.75rem;
+    color: #276749;
+    margin-top: 4px;
+}
+
 .results {
     min-height: 200px;
 }
