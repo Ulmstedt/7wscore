@@ -1682,7 +1682,18 @@ Thanks!`);
         }
 
         return categories.map(category => {
-            const score = player.scores[category.key] || 0;
+            let score = player.scores[category.key] || 0;
+
+            if (category.key === 'scienceCards') {
+                const scienceScore = this.calculateScienceScore(
+                    player.scores.scienceGear || 0,
+                    player.scores.scienceMason || 0,
+                    player.scores.scienceScript || 0,
+                    player.scores.scienceFree || 0
+                );
+                score = scienceScore.totalScore;
+            }
+
             const scoreClass = score < 0 ? 'negative-score' : 'positive-score';
 
             // Determine CSS class for category styling to match main interface
